@@ -32,6 +32,9 @@ except ImportError as err:
     print 'Falling back to BlueSky performance model'
     from perf import Perf
 
+from ScenarioGenerator_revised import *
+from AMAN_class_definition import *
+import sys
 
 class Traffic(DynamicArrays):
     """
@@ -112,7 +115,6 @@ class Traffic(DynamicArrays):
             self.aphi   = np.array([])  # [rad] bank angle setting of autopilot
             self.ax     = np.array([])  # [m/s2] absolute value of longitudinal accelleration
             self.bank   = np.array([])  # nominal bank angle, [radian]
-            self.bphase = np.array([])  # standard bank angles per phase
             self.hdgsel = np.array([], dtype=np.bool)  # determines whether aircraft is turning
 
             # Crossover altitude
@@ -133,6 +135,9 @@ class Traffic(DynamicArrays):
             self.coslat = np.array([])  # Cosine of latitude for computations
             self.eps    = np.array([])  # Small nonzero numbers
 
+        # Default bank angles per flight phase
+        self.bphase = np.deg2rad(np.array([15, 35, 35, 35, 15, 45]))
+		
         self.reset(navdb)
 
     def reset(self, navdb):
@@ -159,6 +164,10 @@ class Traffic(DynamicArrays):
         # Insert your BADA files to the folder "BlueSky/data/coefficients/BADA"
         # for working with EUROCONTROL`s Base of Aircraft Data revision 3.12
         self.perf    = Perf(self)
+        
+        self.AMAN=AMAN(AllFlights,unique_runways) 
+        for rwy in unique_runways:
+            self.AMAN.initial_schedule_popupflightsonly(intarrtime_AMAN_runway,rwy,simulation_start,unique_runways)
 
     def mcreate(self, count, actype=None, alt=None, spd=None, dest=None, area=None):
         """ Create multiple random aircraft in a specified area """
@@ -307,6 +316,45 @@ class Traffic(DynamicArrays):
         #---------- Aftermath ---------------------------------
         self.trails.update(simt)
         self.area.check(simt)
+        
+        #---------- AMAN --------------------------------------
+        i=0 
+        while(i<self.ntraf): 
+            temp1, temp2 = qdrdist(self.lat[i], self.lon[i], 52.309, 4.764)#Check distance towards EHAM
+            if temp2<10.:# and self.alt[i]<250.: #If aircraft within 10 nm from airport and below 1 meter, delete it            
+                self.delete(self.id[i]) 
+            i=i+1
+            
+        self.AMAN.calculate_energy_cost(self.id,self.vs,self.tas,CD_0,CD_2,self.rho,WingSurface,self.hdg,self.trk,mass_nominal,simdt)
+        
+        self.AMAN.IterationCounter=self.AMAN.IterationCounter+1
+            
+        if self.AMAN.IterationCounter%2==0: #simdt=0.05 > update every 5s
+            #Update Trajectory Predictions
+            self.AMAN.update_TP(self.id,self.lat,self.lon,self.tas/kts,self.actwp.lat,self.actwp.lon,simt)
+            
+            for rwy in unique_runways:      
+                if len(sys.argv)>5:
+                    if sys.argv[5]=='ASAPBASIC':
+                        self.AMAN.scheduler_ASAP_basic(self.id,Take_into_account_schedule_horizon,rwy,intarrtime_AMAN_runway,Freeze_horizon,unique_runways)
+                    elif sys.argv[5]=='DYNAMIC':
+                        self.AMAN.scheduler_dynamic(self.id,Take_into_account_schedule_horizon,rwy,intarrtime_AMAN_runway)
+                    elif sys.argv[5]=='ASAPUPGRADE':
+                        self.AMAN.scheduler_ASAP_upgrade(self.id,Take_into_account_schedule_horizon,rwy,intarrtime_AMAN_runway,Freeze_horizon,unique_runways)
+                else:                       
+					self.AMAN.scheduler_ASAP_basic(self.id,Take_into_account_schedule_horizon,rwy,intarrtime_AMAN_runway,Freeze_horizon,unique_runways)                    
+                    # #self.AMAN.scheduler_dynamic(self.id,Take_into_account_schedule_horizon,rwy,intarrtime_AMAN_runway)                    
+                    # #self.AMAN.scheduler_ASAP_upgrade(self.id,Take_into_account_schedule_horizon,rwy,intarrtime_AMAN_runway,Freeze_horizon,unique_runways)
+            
+            self.AMAN.update_SARA(self.id,self.alt,self.ap.route,SARA_horizon,simt,approach_margin)
+                                
+            #self.AMAN.continuous_turn_avoider(self.id,self.ap.route,self.actwp.lat,self.actwp.lon,self,simt)
+                
+            self.AMAN.AMAN_LOG_arrtimes_and_energycost(self.id,simulation_start)
+            self.AMAN.AMAN_LOG_STAhistory(self.id,simt)
+            self.AMAN.AMAN_LOG_lowleveldelay(self.id,simt)
+            self.AMAN.AMAN_LOG_seqhistory(self.id)
+            self.AMAN.AMAN_LOG_CBAShistory(self.id,simulation_start)
         return
 
     def ComputeAirSpeed(self, simdt, simt):

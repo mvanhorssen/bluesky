@@ -1,5 +1,6 @@
 import sys
 import traceback
+from Scenario_Pre_Analyser import * #(logger)
 from bluesky import settings
 
 if __name__ == "__main__":
@@ -14,6 +15,7 @@ else:
     from bluesky.navdb import Navdatabase
     from bluesky.ui.qtgl import Gui
     from bluesky.sim.qtgl import MainManager
+    from bluesky.sim import Simulation
     from bluesky.tools.network import StackTelnetServer
     if __name__ == "__main__":
         print "   *****   BlueSky Open ATM simulator *****"
@@ -53,6 +55,7 @@ def MainLoop():
         gui       = Gui()
         navdb     = Navdatabase('global')  # Read database from specified folder
         telnet_in = StackTelnetServer()
+        sim 	  = Simulation(manager)
 
         # Initialize the gui (loading graphics data, etc.)
         gui.init(navdb)
@@ -71,13 +74,15 @@ def MainLoop():
 
         # Close the manager, stop all nodes
         manager.stop()
-
+        sim.quit()
         # ======================================================================
         # Clean up before exit. Comment this out when debugging for checking
         # variables in the shell.
         # ======================================================================
         del gui
         print 'BlueSky normal end.'
+		
+        save_to_file(sim) #(logger)
 
 if __name__ == "__main__":
     # Run mainloop if BlueSky-qtgl is called directly

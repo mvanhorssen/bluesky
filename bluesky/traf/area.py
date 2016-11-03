@@ -1,5 +1,6 @@
 import numpy as np
 from ..tools.aero import ft
+from ..tools.geo import kwikdist
 
 class Area:
     def __init__(self,traf):
@@ -48,7 +49,7 @@ class Area:
             elif self.shape == "Circle":
 
                 # delete aircraft if it is too far from the center of the circular area, or if has decended below the minimum altitude
-                distance = geo.kwikdist(self.lat0, self.lon0, self.traf.lat[i], self.traf.lon[i])  # [NM]
+                distance = kwikdist(self.lat0, self.lon0, self.traf.lat[i], self.traf.lon[i])  # [NM]
                 inside = distance < self.radius and self.traf.alt[i] >= self.floor
 
             # Compare with previous: when leaving area: delete command

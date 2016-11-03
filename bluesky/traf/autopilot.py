@@ -145,28 +145,34 @@ class Autopilot(DynamicArrays):
 
             #Calculate max allowed altitude at next wp (above toalt)
             self.traf.actwp.alt[idx] = toalt + xtoalt * self.steepness
+            #print('Maximum allowed altitude at next wp: '+str(self.traf.actwp.alt[idx]))
+            #print('Toalt: '+str(toalt))
 
             # Dist to waypoint where descent should start
             self.dist2vs[idx] = (self.traf.alt[idx] - self.traf.actwp.alt[idx]) / self.steepness
+            #print('Distance to wp where descent should start: '+str(self.dist2vs[idx]))
 
             # Flat earth distance to next wp
             dy = (self.traf.actwp.lat[idx] - self.traf.lat[idx])
             dx = (self.traf.actwp.lon[idx] - self.traf.lon[idx]) * self.traf.coslat[idx]
             legdist = 60. * nm * np.sqrt(dx * dx + dy * dy)
+            #print('Distance to next wp: '+str(legdist))
 
             # If descent is urgent, descent with maximum steepness
             if legdist < self.dist2vs[idx]:
                 self.alt[idx] = self.traf.actwp.alt[idx]  # dial in altitude of next waypoint as calculated
 
                 t2go         = max(0.1, legdist) / max(0.01, self.traf.gs[idx])
+                #print('Urgent descent time to go: '+str(t2go))
                 self.traf.actwp.vs[idx]  = (self.traf.actwp.alt[idx] - self.traf.alt[idx]) / t2go
-
+                #print('Traf. alt: '+str(self.traf.alt[idx]))
+                #print('Urgent descent: '+str(self.traf.actwp.vs[idx]))
             else:
                 # Calculate V/s using self.steepness,
                 # protect against zero/invalid ground speed value
                 self.traf.actwp.vs[idx] = -self.steepness * (self.traf.gs[idx] +
                       (self.traf.gs[idx] < 0.2 * self.traf.tas[idx]) * self.traf.tas[idx])
-
+                #print('Normal descent: '+str(self.traf.actwp.vs[idx]))
         # Climb VNAV mode: climb as soon as possible (T/C logic)
         elif self.traf.alt[idx] < toalt - 10. * ft:
             self.traf.actwp.alt[idx] = toalt
