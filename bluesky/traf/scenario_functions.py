@@ -470,6 +470,10 @@ class Route_outside_TMA:
 			CBAS_distance = 0.
 			i = 1.
 			temp_heading,temp0 = qdrdist(float(self.LAT[k]),float(self.LON[k]),float(self.LAT[k-1]),float(self.LON[k-1]))
+			first_wpt = False
+			if k==0 and ((self.whichIAF == 'ARTIP' and dist_to_RWY < 105.) or (self.whichIAF == 'RIVER' and dist_to_RWY < 85.) or (self.whichIAF == 'SUGOL' and dist_to_RWY < 93.)):
+				first_wpt = True
+				temp_heading,temp0 = qdrdist(float(self.LAT[k+1]),float(self.LON[k+1]),float(self.LAT[k]),float(self.LON[k]))
 			if self.whichIAF == 'ARTIP' and dist_to_RWY < 105.:
 				while CBAS_distance < 105.:
 					temp_LAT, temp_LON = pos_and_dist_and_bearing_2_newpos(float(self.LAT[k]),float(self.LON[k]),i,temp_heading,Rearth)
@@ -477,11 +481,18 @@ class Route_outside_TMA:
 					temp_distance = i
 					i = i+1
 				temp_ratio = (temp_distance/temp0)
-				temp_FL = float(self.FL[k-1]) + temp_ratio * (float(self.FL[k])-float(self.FL[k-1]))
-				self.waypoints[k] = 'WPT_CBAS'
-				self.LAT[k] = temp_LAT
-				self.LON[k] = temp_LON
-				self.FL[k] = temp_FL
+				if first_wpt == True:
+					temp_FL = float(self.FL[k]) + temp_ratio * (float(self.FL[k+1])-float(self.FL[k]))
+					self.waypoints[k+1] = 'WPT_CBAS'
+					self.LAT[k+1] = temp_LAT
+					self.LON[k+1] = temp_LON
+					self.FL[k+1] = temp_FL
+				else:
+					temp_FL = float(self.FL[k-1]) + temp_ratio * (float(self.FL[k])-float(self.FL[k-1]))
+					self.waypoints[k] = 'WPT_CBAS'
+					self.LAT[k] = temp_LAT
+					self.LON[k] = temp_LON
+					self.FL[k] = temp_FL
 				del temp_LAT,temp_LON,temp_FL,temp_ratio
 				break
 			elif self.whichIAF == 'RIVER' and dist_to_RWY < 85.:
@@ -491,11 +502,18 @@ class Route_outside_TMA:
 					temp_distance = i
 					i = i+1
 				temp_ratio = (temp_distance/temp0)
-				temp_FL = float(self.FL[k-1]) + temp_ratio * (float(self.FL[k])-float(self.FL[k-1]))
-				self.waypoints[k] = 'WPT_CBAS'
-				self.LAT[k] = temp_LAT
-				self.LON[k] = temp_LON
-				self.FL[k] = temp_FL
+				if first_wpt == True:
+					temp_FL = float(self.FL[k]) + temp_ratio * (float(self.FL[k+1])-float(self.FL[k]))
+					self.waypoints[k+1] = 'WPT_CBAS'
+					self.LAT[k+1] = temp_LAT
+					self.LON[k+1] = temp_LON
+					self.FL[k+1] = temp_FL
+				else:
+					temp_FL = float(self.FL[k-1]) + temp_ratio * (float(self.FL[k])-float(self.FL[k-1]))
+					self.waypoints[k] = 'WPT_CBAS'
+					self.LAT[k] = temp_LAT
+					self.LON[k] = temp_LON
+					self.FL[k] = temp_FL
 				del temp_LAT,temp_LON,temp_FL,temp_ratio
 				break
 			elif self.whichIAF == 'SUGOL' and dist_to_RWY < 93.:
@@ -505,11 +523,18 @@ class Route_outside_TMA:
 					temp_distance = i
 					i = i+1
 				temp_ratio = (temp_distance/temp0)
-				temp_FL = float(self.FL[k-1]) + temp_ratio * (float(self.FL[k])-float(self.FL[k-1]))
-				self.waypoints[k] = 'WPT_CBAS'
-				self.LAT[k] = temp_LAT
-				self.LON[k] = temp_LON
-				self.FL[k] = temp_FL
+				if first_wpt == True:
+					temp_FL = float(self.FL[k]) + temp_ratio * (float(self.FL[k+1])-float(self.FL[k]))
+					self.waypoints[k+1] = 'WPT_CBAS'
+					self.LAT[k+1] = temp_LAT
+					self.LON[k+1] = temp_LON
+					self.FL[k+1] = temp_FL
+				else:
+					temp_FL = float(self.FL[k-1]) + temp_ratio * (float(self.FL[k])-float(self.FL[k-1]))
+					self.waypoints[k] = 'WPT_CBAS'
+					self.LAT[k] = temp_LAT
+					self.LON[k] = temp_LON
+					self.FL[k] = temp_FL
 				del temp_LAT,temp_LON,temp_FL,temp_ratio
 				break
 			del dist_to_RWY,temp_heading,temp0,CBAS_distance,i

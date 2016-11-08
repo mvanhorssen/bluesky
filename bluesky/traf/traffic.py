@@ -14,7 +14,7 @@ from adsbmodel import ADSB
 from asas import ASAS
 from pilot import Pilot
 from autopilot import Autopilot
-from waypoint import ActiveWaypoint
+from activewpdata import ActiveWaypoint
 from turbulence import Turbulence
 from area import Area
 
@@ -35,6 +35,7 @@ except ImportError as err:
 from ScenarioGenerator_revised import *
 from AMAN_class_definition import *
 import sys
+
 
 class Traffic(DynamicArrays):
     """
@@ -57,6 +58,7 @@ class Traffic(DynamicArrays):
         self.wind = WindSim()
 
         # Define the periodic loggers
+        # ToDo: explain what these line sdo in comments (type of logs?)
         datalog.definePeriodicLogger('SNAPLOG', 'SNAPLOG logfile.', settings.snapdt)
         datalog.definePeriodicLogger('INSTLOG', 'INSTLOG logfile.', settings.instdt)
         datalog.definePeriodicLogger('SKYLOG', 'SKYLOG logfile.', settings.skydt)
@@ -137,12 +139,11 @@ class Traffic(DynamicArrays):
 
         # Default bank angles per flight phase
         self.bphase = np.deg2rad(np.array([15, 35, 35, 35, 15, 45]))
-		
+
         self.reset(navdb)
 
     def reset(self, navdb):
-        
-        # This ensures that the traffic arrays (which size is dynamic) 
+        # This ensures that the traffic arrays (which size is dynamic)
         # are all reset as well, so all lat,lon,sdp etc but also objects adsb
         super(Traffic, self).reset()
         self.ntraf = 0
@@ -164,7 +165,7 @@ class Traffic(DynamicArrays):
         # Insert your BADA files to the folder "BlueSky/data/coefficients/BADA"
         # for working with EUROCONTROL`s Base of Aircraft Data revision 3.12
         self.perf    = Perf(self)
-        
+		
         self.AMAN=AMAN(AllFlights,unique_runways) 
         for rwy in unique_runways:
             self.AMAN.initial_schedule_popupflightsonly(intarrtime_AMAN_runway,rwy,simulation_start,unique_runways)
@@ -258,10 +259,6 @@ class Traffic(DynamicArrays):
         self.perf.create()
         self.trails.create()
 
-        #
-        if self.ntraf < 2:
-            self.bphase = np.deg2rad(np.array([15, 35, 35, 35, 15, 45]))
-
         return True
 
     def delete(self, acid):
@@ -316,12 +313,12 @@ class Traffic(DynamicArrays):
         #---------- Aftermath ---------------------------------
         self.trails.update(simt)
         self.area.check(simt)
-        
-        #---------- AMAN --------------------------------------
+		
+		#---------- AMAN --------------------------------------
         i=0 
         while(i<self.ntraf): 
             temp1, temp2 = qdrdist(self.lat[i], self.lon[i], 52.309, 4.764)#Check distance towards EHAM
-            if temp2<10.:# and self.alt[i]<250.: #If aircraft within 10 nm from airport and below 1 meter, delete it            
+            if temp2<1.:# and self.alt[i]<100.: #If aircraft within 10 nm from airport and below 1 meter, delete it            
                 self.delete(self.id[i]) 
             i=i+1
             
@@ -453,7 +450,7 @@ class Traffic(DynamicArrays):
         idx           = self.id.index(acid)
         actype        = self.type[idx]
         lat, lon      = self.lat[idx], self.lon[idx]
-        alt, hdg, trk = self.alt[idx] / ft, self.hdg[idx], self.trk[idx]
+        alt, hdg, trk = self.alt[idx] / ft, self.hdg[idx], round(self.trk[idx])
         cas           = self.cas[idx] / kts
         tas           = self.tas[idx] / kts
         route         = self.ap.route[idx]

@@ -12,7 +12,7 @@ if len(sys.argv)>2:
 else:
     fnametempor='214scenario2c12' #Specify file (without .pkl extension) to be read  
 
-fnametempor='test_sample' 
+fnametempor='sample_with_CBAS_predepest' 
     
 with open(fnametempor+'.pkl','rb') as input:
     
@@ -57,9 +57,14 @@ with open(fnametempor+'.pkl','rb') as input:
         LOG_seqhist_disttorwys=list(pickle.load(input))
         LOG_seqhist_flightphases=list(pickle.load(input))
         LOG_seqhist_STAstatuses=list(pickle.load(input))
+		
+        PreDepEstTimes_at_CBAS=list(pickle.load(input))
+        LOG_CBAS_passed=list(pickle.load(input))
+        LOG_times_at_CBAS=list(pickle.load(input))
+        LOG_accuracies_predepests_at_CBAS=list(pickle.load(input))
+		
         #
       
-
 #First print some numbers
 print 
 print 
@@ -255,11 +260,20 @@ print 'Average Energy per FlPl nm: ',np.mean(energycost_perflplnm_individualac)*
 
 
 print
-print 'Deliv. Accuracy Abs. Value [s]: ',np.mean(np.abs(LOG_delivery_accuracies_IAF))
+print 'IAF Deliv. Accuracy Abs. Value [s]: ',np.mean(np.abs(LOG_delivery_accuracies_IAF))
 #plt.figure()
-#hist(LOG_delivery_accuracies_IAF)
+#plt.hist(LOG_delivery_accuracies_IAF)
 #plt.show()
 
+print
+print 'CBAS Deliv. Accuracy Abs. Value [s]: ',np.mean(np.abs(LOG_accuracies_predepests_at_CBAS))
+
+
+#print(LOG_CBAS_passed)
+#print(LOG_times_at_CBAS)
+#print(LOG_accuracies_predepests_at_CBAS)
+
+sorted_LOG_time_CBAS_passed = LOG_CBAS_passed
 
 def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dists,simulation_start,sorted_runway1_lastSTAs,sorted_runway2_lastSTAs,LOG_times_at_RWY,LOG_lowlevel_delabs_times,LOG_lowlevel_delabs_simtimes):
         #Determine, for each time interval (d) during the whole day the number of landing aircraft, whether they are pop-up and the pop-up ratio
@@ -281,6 +295,19 @@ def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dis
         counter_actual_landed=[]
         counter_actual_runway1=[]
         counter_actual_runway2=[]        
+		
+        counter_planned_CBAS_all=[]
+        counter_planned_CBAS_ARTIP=[]
+        counter_planned_CBAS_RIVER=[]
+        counter_planned_CBAS_SUGOL=[]
+        counter_planned_CBAS_18C=[]
+        counter_planned_CBAS_27=[]
+        counter_actual_CBAS_all=[]
+        counter_actual_CBAS_ARTIP=[]
+        counter_actual_CBAS_RIVER=[]
+        counter_actual_CBAS_SUGOL=[]
+        counter_actual_CBAS_18C=[]
+        counter_actual_CBAS_27=[]
         
         average_lowlev_delay_interval=[]        
         
@@ -300,6 +327,19 @@ def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dis
             temp_actual_landed=0
             temp_actual_landed_runway1=0
             temp_actual_landed_runway2=0
+			
+            temp_planned_CBAS_all=0
+            temp_planned_CBAS_ARTIP=0
+            temp_planned_CBAS_RIVER=0
+            temp_planned_CBAS_SUGOL=0
+            temp_planned_CBAS_18C=0
+            temp_planned_CBAS_27=0
+            temp_actual_CBAS_all=0
+            temp_actual_CBAS_ARTIP=0
+            temp_actual_CBAS_RIVER=0
+            temp_actual_CBAS_SUGOL=0
+            temp_actual_CBAS_18C=0
+            temp_actual_CBAS_27=0
             
             temp_interval_lowlev_delay=[]
             #
@@ -323,14 +363,53 @@ def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dis
                         
                     if RWYs[idx]=='27':
                         temp_planned_rwy1=temp_planned_rwy1+1
+                        #temp_planned_CBAS_27=temp_planned_CBAS_27+1
                     elif RWYs[idx]=='18C':
                         temp_planned_rwy2=temp_planned_rwy2+1
+                        #temp_planned_CBAS_18C=temp_planned_CBAS_18C+1
+					
+                    #if IAFs[idx]=='ARTIP':
+                    #    temp_planned_CBAS_ARTIP=temp_planned_CBAS_ARTIP+1
+                    #elif IAFs[idx]=='RIVER':
+                    #    temp_planned_CBAS_RIVER=temp_planned_CBAS_RIVER+1
+                    #elif IAFs[idx]=='SUGOL':
+					#	temp_planned_CBAS_SUGOL=temp_planned_CBAS_SUGOL+1
                               
                 if LOG_times_at_RWY[idx] >=acceptedrange_low and LOG_times_at_RWY[idx] <=acceptedrange_high:
                         temp_actual_landed=temp_actual_landed+1
                         
                 if LOG_lowlevel_delabs_simtimes[idx] >=acceptedrange_low and LOG_lowlevel_delabs_simtimes[idx] <=acceptedrange_high:
                     temp_interval_lowlev_delay.append(LOG_lowlevel_delabs_times[idx])
+				
+                if (PreDepEstTimes_at_CBAS[idx]-simulation_start) >=acceptedrange_low and (PreDepEstTimes_at_CBAS[idx]-simulation_start) <=acceptedrange_high:
+                    if RWYs[idx]=='27':
+                        temp_planned_CBAS_27=temp_planned_CBAS_27+1
+                    elif RWYs[idx]=='18C':
+                        temp_planned_CBAS_18C=temp_planned_CBAS_18C+1
+					
+                    if IAFs[idx]=='ARTIP':
+                        temp_planned_CBAS_ARTIP=temp_planned_CBAS_ARTIP+1
+                    elif IAFs[idx]=='RIVER':
+                        temp_planned_CBAS_RIVER=temp_planned_CBAS_RIVER+1
+                    elif IAFs[idx]=='SUGOL':
+						temp_planned_CBAS_SUGOL=temp_planned_CBAS_SUGOL+1
+					
+                    temp_planned_CBAS_all = temp_planned_CBAS_all+1
+				
+                if LOG_CBAS_passed[idx] >=acceptedrange_low and LOG_CBAS_passed[idx] <=acceptedrange_high:
+                    if RWYs[idx]=='27':
+                        temp_actual_CBAS_27=temp_actual_CBAS_27+1
+                    elif RWYs[idx]=='18C':
+                        temp_actual_CBAS_18C=temp_actual_CBAS_18C+1
+					
+                    if IAFs[idx]=='ARTIP':
+                        temp_actual_CBAS_ARTIP=temp_actual_CBAS_ARTIP+1
+                    elif IAFs[idx]=='RIVER':
+                        temp_actual_CBAS_RIVER=temp_actual_CBAS_RIVER+1
+                    elif IAFs[idx]=='SUGOL':
+						temp_actual_CBAS_SUGOL=temp_actual_CBAS_SUGOL+1
+					
+                    temp_actual_CBAS_all = temp_actual_CBAS_all+1
              
             for idx in range(len(sorted_runway1_lastSTAs)): 
                 if sorted_runway1_lastSTAs[idx] >=acceptedrange_low and sorted_runway1_lastSTAs[idx] <=acceptedrange_high:
@@ -351,6 +430,20 @@ def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dis
             counter_actual_landed.append(temp_actual_landed)
             counter_actual_runway1.append(temp_actual_landed_runway1)
             counter_actual_runway2.append(temp_actual_landed_runway2)
+			
+            counter_actual_CBAS_all.append(temp_actual_CBAS_all)
+            counter_actual_CBAS_18C.append(temp_actual_CBAS_18C)
+            counter_actual_CBAS_27.append(temp_actual_CBAS_27)
+            counter_actual_CBAS_ARTIP.append(temp_actual_CBAS_ARTIP)
+            counter_actual_CBAS_RIVER.append(temp_actual_CBAS_RIVER)
+            counter_actual_CBAS_SUGOL.append(temp_actual_CBAS_SUGOL)
+			
+            counter_planned_CBAS_all.append(temp_planned_CBAS_all)
+            counter_planned_CBAS_18C.append(temp_planned_CBAS_18C)
+            counter_planned_CBAS_27.append(temp_planned_CBAS_27)
+            counter_planned_CBAS_ARTIP.append(temp_planned_CBAS_ARTIP)
+            counter_planned_CBAS_RIVER.append(temp_planned_CBAS_RIVER)
+            counter_planned_CBAS_SUGOL.append(temp_planned_CBAS_SUGOL)
             
             if len(temp_interval_lowlev_delay)>0:
                 average_lowlev_delay_interval.append(np.mean(temp_interval_lowlev_delay))
@@ -367,6 +460,96 @@ def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dis
         #print counterpopup,counterother,countertotal
         
         plt.figure()
+        #plt.plot(intervalvalue,counterpopup,"r*--",markeredgecolor='r',label="Pop-up")
+        #
+        plt.plot(intervalvalue,counter_planned_CBAS_all,"x--",label="Pre-Departure CBAS All")
+        plt.plot(intervalvalue,counter_actual_CBAS_all,"r*-",markeredgecolor='r',label="Actual CBAS All")
+        plt.grid(True)
+        plt.legend(loc="upper right")
+        plt.xlabel("Simulation Time [s]",fontsize=16)
+        plt.ylabel("Number of Flights [-]",fontsize=16)
+        plt.tick_params(axis='x',labelsize=16)
+        plt.tick_params(axis='y',labelsize=16)
+        plt.axis(fontsize=16)
+        plt.show()
+        #plt.savefig('figures/CBAS_All.png')
+		
+        plt.figure()
+        #plt.plot(intervalvalue,counterpopup,"r*--",markeredgecolor='r',label="Pop-up")
+        #
+        plt.plot(intervalvalue,counter_planned_CBAS_18C,"x--",label="Pre-Departure CBAS 18C")
+        plt.plot(intervalvalue,counter_actual_CBAS_18C,"r*-",markeredgecolor='r',label="Actual CBAS 18C")
+        plt.grid(True)
+        plt.legend(loc="upper right")
+        plt.xlabel("Simulation Time [s]",fontsize=16)
+        plt.ylabel("Number of Flights [-]",fontsize=16)
+        plt.tick_params(axis='x',labelsize=16)
+        plt.tick_params(axis='y',labelsize=16)
+        plt.axis(fontsize=16)
+        plt.show()
+        #plt.savefig('figures/CBAS_18C.png')
+		
+        plt.figure()
+        #plt.plot(intervalvalue,counterpopup,"r*--",markeredgecolor='r',label="Pop-up")
+        #
+        plt.plot(intervalvalue,counter_planned_CBAS_27,"x--",label="Pre-Departure CBAS 27")
+        plt.plot(intervalvalue,counter_actual_CBAS_27,"r*-",markeredgecolor='r',label="Actual CBAS 27")
+        plt.grid(True)
+        plt.legend(loc="upper right")
+        plt.xlabel("Simulation Time [s]",fontsize=16)
+        plt.ylabel("Number of Flights [-]",fontsize=16)
+        plt.tick_params(axis='x',labelsize=16)
+        plt.tick_params(axis='y',labelsize=16)
+        plt.axis(fontsize=16)
+        plt.show()
+        #plt.savefig('figures/CBAS_27.png')
+		
+        plt.figure()
+        #plt.plot(intervalvalue,counterpopup,"r*--",markeredgecolor='r',label="Pop-up")
+        #
+        plt.plot(intervalvalue,counter_planned_CBAS_ARTIP,"x--",label="Pre-Departure CBAS ARTIP")
+        plt.plot(intervalvalue,counter_actual_CBAS_ARTIP,"r*-",markeredgecolor='r',label="Actual CBAS ARTIP")
+        plt.grid(True)
+        plt.legend(loc="upper right")
+        plt.xlabel("Simulation Time [s]",fontsize=16)
+        plt.ylabel("Number of Flights [-]",fontsize=16)
+        plt.tick_params(axis='x',labelsize=16)
+        plt.tick_params(axis='y',labelsize=16)
+        plt.axis(fontsize=16)
+        plt.show()
+        #plt.savefig('figures/CBAS_ARTIP.png')
+		
+        plt.figure()
+        #plt.plot(intervalvalue,counterpopup,"r*--",markeredgecolor='r',label="Pop-up")
+        #
+        plt.plot(intervalvalue,counter_planned_CBAS_RIVER,"x--",label="Pre-Departure CBAS RIVER")
+        plt.plot(intervalvalue,counter_actual_CBAS_RIVER,"r*-",markeredgecolor='r',label="Actual CBAS RIVER")
+        plt.grid(True)
+        plt.legend(loc="upper right")
+        plt.xlabel("Simulation Time [s]",fontsize=16)
+        plt.ylabel("Number of Flights [-]",fontsize=16)
+        plt.tick_params(axis='x',labelsize=16)
+        plt.tick_params(axis='y',labelsize=16)
+        plt.axis(fontsize=16)
+        plt.show()
+        #plt.savefig('figures/CBAS_RIVER.png')
+		
+        plt.figure()
+        #plt.plot(intervalvalue,counterpopup,"r*--",markeredgecolor='r',label="Pop-up")
+        #
+        plt.plot(intervalvalue,counter_planned_CBAS_SUGOL,"x--",label="Pre-Departure CBAS SUGOL")
+        plt.plot(intervalvalue,counter_actual_CBAS_SUGOL,"r*-",markeredgecolor='r',label="Actual CBAS SUGOL")
+        plt.grid(True)
+        plt.legend(loc="upper right")
+        plt.xlabel("Simulation Time [s]",fontsize=16)
+        plt.ylabel("Number of Flights [-]",fontsize=16)
+        plt.tick_params(axis='x',labelsize=16)
+        plt.tick_params(axis='y',labelsize=16)
+        plt.axis(fontsize=16)
+        plt.show()
+        #plt.savefig('figures/CBAS_SUGOL.png')
+		
+        plt.figure()
         plt.plot(intervalvalue,counterpopup,"r*--",markeredgecolor='r',label="Pop-up")
         plt.plot(intervalvalue,counterother,"g*--",markeredgecolor='g',label="Normal")
         plt.plot(intervalvalue,countertotal,"x-",label="Total")
@@ -378,6 +561,7 @@ def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dis
         plt.tick_params(axis='y',labelsize=16)
         plt.axis(fontsize=16)
         plt.show()
+        #plt.savefig('figures/Total_Flights_Labels.png')
 
 
 
@@ -395,6 +579,7 @@ def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dis
         plt.tick_params(axis='y',labelsize=16)
         plt.axis(fontsize=16)
         plt.show()
+        #plt.savefig('figures/Flights_27')
         
 
         plt.figure()
@@ -410,6 +595,7 @@ def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dis
         plt.tick_params(axis='y',labelsize=16)
         plt.axis(fontsize=16)
         plt.show()
+        #plt.savefig('figures/Flights_18C.png')
 
         plt.figure()
         #plt.plot(intervalvalue,counterpopup,"r*--",markeredgecolor='r',label="Pop-up")
@@ -426,6 +612,7 @@ def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dis
         plt.tick_params(axis='y',labelsize=16)
         plt.axis(fontsize=16)
         plt.show()
+        #plt.savefig('figures/Total_Flights_Runways.png')
 
 
 
@@ -459,6 +646,7 @@ def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dis
         ax.axis(fontsize=16)
         ax2.axis(fontsize=16)
         plt.show()
+        #plt.savefig('figures/Total_Delay.png')
 
 
 
@@ -489,6 +677,7 @@ def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dis
         ax.axis(fontsize=16)
         ax2.axis(fontsize=16)
         plt.show()
+        #plt.savefig('figures/Popup_Flights.png')
         
         
         horizon_values=range(0,501,1)
@@ -508,6 +697,7 @@ def show_graphs(CallSigns,PreDepEstTimes_at_RWY,PopupLabels,Direct_inbetween_dis
         plt.tick_params(axis='y',labelsize=16)
         plt.axis(fontsize=16)
         plt.show()
+        #plt.savefig('figures/Popup_Ratio.png')
         
 
 

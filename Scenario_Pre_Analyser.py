@@ -9,6 +9,8 @@ def scenario_print():
     
 def save_to_file(sim):
     
+    print('Saving to file')
+	
     if len(sys.argv)>1:
         fnametempor=str(sys.argv[1])
     else:
@@ -54,6 +56,11 @@ def save_to_file(sim):
         pickle.dump(sim.traf.AMAN.LOG_seqhist_disttorwy,output,-1)
         pickle.dump(sim.traf.AMAN.LOG_seqhist_flightphase,output,-1)
         pickle.dump(sim.traf.AMAN.LOG_seqhist_STAstatus,output,-1)
+		
+        pickle.dump(sim.traf.AMAN.AllFlights.PreDepEstTime_at_CBAS,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_time_CBAS_passed,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_time_at_CBAS,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_accuracy_predepest_at_CBAS,output,-1)
  
     del fnametempor
     

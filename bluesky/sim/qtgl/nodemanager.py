@@ -4,6 +4,7 @@ except ImportError:
     from PyQt4.QtCore import QObject, QEvent
 
 from multiprocessing.connection import Client
+from Scenario_Pre_Analyser import * #(logger)
 
 # Local imports
 from simulation import Simulation
@@ -18,6 +19,7 @@ def runNode():
     manager     = NodeManager(connection)
     manager.sim = Simulation(manager)
     manager.sim.doWork()
+    save_to_file(manager.sim) #(logger)
     manager.close()
     print 'Node', manager.nodeid, 'stopped.'
 

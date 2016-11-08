@@ -668,7 +668,8 @@ class AMAN(Flights):
                     #Define dog leg                    
                     speed_flown_TAS=self.AllFlights.Route_TMA[idx].spd_TAS[0] #Same speed as to IAF
                     speed_flown_CAS=self.AllFlights.Route_TMA[idx].spd[0] #Same speed as to IAF
-                    time_flown_extra_dogleg=(S2A_1*30.)+(S2A_2*(max(30,self.CurrDelToBeAbs[idx]-approach_margin))) #Always 30 s dog leg, except if IAF is RIVER > then dog leg of (delay to be absorbed - approach margin) seconds
+                    #time_flown_extra_dogleg=(S2A_1*30.)+(S2A_2*(max(30,self.CurrDelToBeAbs[idx]-approach_margin))) #Always 30 s dog leg, except if IAF is RIVER > then dog leg of (delay to be absorbed - approach margin) seconds
+                    time_flown_extra_dogleg=max(30,self.CurrDelToBeAbs[idx]-approach_margin) #Always 30 s dog leg, except if IAF is RIVER > then dog leg of (delay to be absorbed - approach margin) seconds
                     distance_tobeflown_extra_dogleg=speed_flown_TAS*time_flown_extra_dogleg/3600.
                     
                     self.LOG_lowlevel_delabs_time[idx]=time_flown_extra_dogleg #logger: record time and distance (low-level holding)                    
@@ -1020,7 +1021,8 @@ class AMAN(Flights):
                     last_semifixed_ETA,last_semifixed_STA=self.scheduler_ASAP_basic_subfunction_find_last_semifixed_ETAs_STAs(BS_CallSign,RWY,last_fixed_STA)
                     self.scheduler_ASAP_basic_subfunction_update_varschedule(BS_CallSign,RWY,intarrtime_RWY,last_semifixed_STA)
         
-		#self.scheduler_ASAP_basic_subfunction_print_schedule(BS_CallSign,RWY)
+		#if RWY == '27':
+			#self.scheduler_ASAP_basic_subfunction_print_schedule(BS_CallSign,RWY)
 		
 		self.out1[tempindextemp]=last_semifixed_ETA
         self.out2[tempindextemp]=last_semifixed_STA
@@ -1861,7 +1863,7 @@ class AMAN(Flights):
                 if self.LOG_time_at_IAF[idx]>-999. and self.CurrEstTime_at_IAF[idx]==-999. and self.LOG_IAF_passed[idx]==False:
                     self.LOG_IAF_passed[idx]=True #logger: did aircraft pass by IAF already
                     self.LOG_accuracy_predepest_at_IAF[idx]=self.LOG_time_at_IAF[idx]-(self.AllFlights.PreDepEstTime_at_IAF[idx]-simulation_start) #Logger: accuracy of pre-departure estimate (switch OFF SARA)
-                    self.LOG_delivery_accuracy_at_IAF[idx]=self.LOG_time_at_IAF[idx]-self.CurrSchTime_at_IAF[idx] #logger: accuracy at IAF (scheduled<>actual time at IAF); make sure that scheduler switched on                    
+                    self.LOG_delivery_accuracy_at_IAF[idx]=self.LOG_time_at_IAF[idx]-self.CurrSchTime_at_IAF[idx] #logger: accuracy at IAF (scheduled<>actual time at IAF); make sure that scheduler switched on
                     
             for idx in range(len(self.AllFlights.CallSign)):
                 if self.LOG_time_at_RWY[idx]>-999. and self.LOG_RWY_passed[idx]==False and self.AllFlights.CallSign[idx] not in BS_CallSign:

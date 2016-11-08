@@ -81,8 +81,6 @@ def MainLoop():
         # ======================================================================
         del gui
         print 'BlueSky normal end.'
-		
-        save_to_file(sim) #(logger)
 
 if __name__ == "__main__":
     # Run mainloop if BlueSky-qtgl is called directly
