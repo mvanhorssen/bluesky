@@ -186,11 +186,26 @@ class Traffic(DynamicArrays):
 
             self.create(acid, actype, aclat, aclon, achdg, acalt, acspd)
 
-    def create(self, acid, actype, aclat, aclon, achdg, acalt, casmach):
+    def create(self, acid=None, actype=None, aclat=None, aclon=None, achdg=None, acalt=None, casmach=None):
         """Create an aircraft"""
         # Check if not already exist
         if self.id.count(acid.upper()) > 0:
             return False, acid + " already exists."  # already exists do nothing
+
+        # Catch missing acid, repalce by a default
+        if acid == None or acid =="*":
+            acid = "KL204"
+            flno = 204
+            while self.id.count(acid)>0:
+                flno = flno+1
+                acid ="KL"+str(flno)
+        
+        # Check for (other) missing arguments
+        if actype == None or aclat == None or aclon == None or achdg == None \
+            or acalt == None or casmach == None:
+            
+            return False,"Missing one or more arguments:"\
+                         "acid,actype,aclat,aclon,achdg,acalt,acspd"
 
         super(Traffic, self).create()
 
@@ -300,9 +315,9 @@ class Traffic(DynamicArrays):
         self.pilot.FlightEnvelope()
 
         #---------- Kinematics --------------------------------
-        self.ComputeAirSpeed(simdt, simt)
-        self.ComputeGroundSpeed(simdt)
-        self.ComputePosition(simdt)
+        self.UpdateAirSpeed(simdt, simt)
+        self.UpdateGroundSpeed(simdt)
+        self.UpdatePosition(simdt)
 
         #---------- Performance Update ------------------------
         self.perf.perf(simt)
@@ -354,7 +369,7 @@ class Traffic(DynamicArrays):
             self.AMAN.AMAN_LOG_CBAShistory(self.id,simulation_start)
         return
 
-    def ComputeAirSpeed(self, simdt, simt):
+    def UpdateAirSpeed(self, simdt, simt):
         # Acceleration
         self.delspd = self.pilot.spd - self.tas
         swspdsel = np.abs(self.delspd) > 0.4  # <1 kts = 0.514444 m/s
@@ -378,7 +393,7 @@ class Traffic(DynamicArrays):
         self.swaltsel = np.abs(delalt) > np.maximum(10 * ft, np.abs(2 * simdt * np.abs(self.vs)))
         self.vs  = self.swaltsel * np.sign(delalt) * self.pilot.vs
 
-    def ComputeGroundSpeed(self, simdt):
+    def UpdateGroundSpeed(self, simdt):
         # Compute ground speed and track from heading, airspeed and wind
         if self.wind.winddim == 0:  # no wind
             self.gsnorth  = self.tas * np.cos(np.radians(self.hdg))
@@ -395,7 +410,7 @@ class Traffic(DynamicArrays):
             self.gs  = np.sqrt(self.gsnorth**2 + self.gseast**2)
             self.trk = np.degrees(np.arctan2(self.gseast, self.gsnorth)) % 360.
 
-    def ComputePosition(self, simdt):
+    def UpdatePosition(self, simdt):
         # Update position
         self.alt = np.where(self.swaltsel, self.alt + self.vs * simdt, self.pilot.alt)
         self.lat = self.lat + np.degrees(simdt * self.gsnorth / Rearth)
