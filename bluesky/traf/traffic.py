@@ -332,19 +332,23 @@ class Traffic(DynamicArrays):
 		#---------- AMAN --------------------------------------
         i=0 
         while(i<self.ntraf): 
-            temp1, temp2 = qdrdist(self.lat[i], self.lon[i], 52.309, 4.764)#Check distance towards EHAM
-            if temp2<1.:# and self.alt[i]<100.: #If aircraft within 10 nm from airport and below 1 meter, delete it            
+            temp1, temp2 = qdrdist(self.lat[i], self.lon[i], 52.309, 4.764) # Check distance towards EHAM
+            if temp2<1. and self.alt[i]<1.: # If aircraft within 10 nm from airport and below 1 meter, delete it            
                 self.delete(self.id[i]) 
             i=i+1
             
+		# Calculate energy cost per flight
         self.AMAN.calculate_energy_cost(self.id,self.vs,self.tas,CD_0,CD_2,self.rho,WingSurface,self.hdg,self.trk,mass_nominal,simdt)
         
+		# Increase iteration counter
         self.AMAN.IterationCounter=self.AMAN.IterationCounter+1
-            
-        if self.AMAN.IterationCounter%2==0: #simdt=0.05 > update every 5s
-            #Update Trajectory Predictions
+         
+		# Update trajectory predictor, scheduler and SARA every five seconds
+        if self.AMAN.IterationCounter%2==0:
+            # Update Trajectory Predictions
             self.AMAN.update_TP(self.id,self.lat,self.lon,self.tas/kts,self.actwp.lat,self.actwp.lon,simt)
             
+			# Update schedule per runway
             for rwy in unique_runways:      
                 if len(sys.argv)>5:
                     if sys.argv[5]=='ASAPBASIC':
@@ -358,10 +362,10 @@ class Traffic(DynamicArrays):
                     # #self.AMAN.scheduler_dynamic(self.id,Take_into_account_schedule_horizon,rwy,intarrtime_AMAN_runway)                    
                     # #self.AMAN.scheduler_ASAP_upgrade(self.id,Take_into_account_schedule_horizon,rwy,intarrtime_AMAN_runway,Freeze_horizon,unique_runways)
             
+			# Update SARA advisories
             self.AMAN.update_SARA(self.id,self.alt,self.ap.route,SARA_horizon,simt,approach_margin)
-                                
-            #self.AMAN.continuous_turn_avoider(self.id,self.ap.route,self.actwp.lat,self.actwp.lon,self,simt)
-                
+            
+			# Save variables in logger
             self.AMAN.AMAN_LOG_arrtimes_and_energycost(self.id,simulation_start)
             self.AMAN.AMAN_LOG_STAhistory(self.id,simt)
             self.AMAN.AMAN_LOG_lowleveldelay(self.id,simt)

@@ -70,7 +70,7 @@ class Autopilot(DynamicArrays):
 
             # Shift waypoints for aircraft i where necessary
             for i in self.traf.actwp.Reached(qdr, dist):
-                # Save current wp speed
+				# Save current wp speed
                 oldspd = self.traf.actwp.spd[i]
 
                 # Get next wp (lnavon = False if no more waypoints)
@@ -123,7 +123,8 @@ class Autopilot(DynamicArrays):
             #    while descending to the destination (the last waypoint)
             self.swnavvs = np.where(self.traf.swlnav, govertical, dist < self.traf.actwp.turndist)
 
-            self.swvnavvs  = np.where(self.swnavvs, self.steepness * self.traf.gs, self.swvnavvs)
+            #self.swvnavvs  = np.where(self.swnavvs, self.steepness * self.traf.gs, self.swvnavvs)
+            self.swvnavvs  = np.where(self.swnavvs, self.traf.actwp.vs, self.swvnavvs)
 
             self.vs = np.where(self.traf.swvnav, self.swvnavvs, self.traf.avsdef * self.traf.limvs_flag)
 
@@ -186,6 +187,12 @@ class Autopilot(DynamicArrays):
             self.traf.actwp.alt[idx] = toalt
             self.alt[idx]    = self.traf.actwp.alt[idx]  # dial in altitude of next waypoint as calculated
             self.dist2vs[idx]  = 9999.
+			# Flat earth distance to next wp
+            dy = (self.traf.actwp.lat[idx] - self.traf.lat[idx])
+            dx = (self.traf.actwp.lon[idx] - self.traf.lon[idx]) * self.traf.coslat[idx]
+            legdist = 60. * nm * np.sqrt(dx * dx + dy * dy)
+            t2go = max(0.1, legdist) / max(0.01, self.traf.gs[idx])
+            self.traf.actwp.vs[idx]  = (self.traf.actwp.alt[idx] - self.traf.alt[idx]) / t2go
         # Level leg: never start V/S
         else:
             self.dist2vs[idx] = -999.

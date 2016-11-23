@@ -32,7 +32,7 @@ class ActiveWaypoint(DynamicArrays):
         # Turn radius:      R = V2 tan phi / g
         # Distance to turn: wpturn = R * tan (1/2 delhdg) but max 4 times radius
         # using default bank angle per flight phase
-        turnrad = self.traf.tas * self.traf.tas / np.maximum(self.traf.eps, np.tan(self.traf.bank) * g0 * nm)  # [nm]
+        turnrad = np.minimum(1.,self.traf.tas * self.traf.tas / np.maximum(self.traf.eps, np.tan(self.traf.bank) * g0 * nm))  # [nm]
         next_qdr = np.where(self.next_qdr < -900., qdr, self.next_qdr)
      
         # Avoid circling
