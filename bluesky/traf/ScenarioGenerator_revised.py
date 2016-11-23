@@ -2,6 +2,7 @@
 from scenario_functions import *
 from functions_alexander import *
 from performanceA import *
+from Tkinter import *
 import random
 import sys
 ##################################################################################### 
@@ -17,16 +18,12 @@ import sys
 def scenario_creator(FlightID): #AllFlights.SimTime[idx]-simulation_start
     idx=AllFlights.FlightIdentifier.index(FlightID)
     outputfile.write('\n \n \n \n \n')
-    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>CRE '+str(AllFlights.CallSign[idx])+ ', '+'B747'+','+str(AllFlights.Route_outside_TMA[idx].LAT[0])+','+str(AllFlights.Route_outside_TMA[idx].LON[0]) + ',' + str(AllFlights.StartHeading[idx]) + ',0,' + str(AllFlights.Route_outside_TMA[idx].spd[0]) + '\n \n')  #B747 should be replaced with real aircraft type 
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>CRE '+str(AllFlights.CallSign[idx])+ ', '+'B744'+','+str(AllFlights.Route_outside_TMA[idx].LAT[0])+','+str(AllFlights.Route_outside_TMA[idx].LON[0]) + ',' + str(AllFlights.StartHeading[idx]) + ',0,' + str(AllFlights.Route_outside_TMA[idx].spd[0]) + '\n \n')  #B747 should be replaced with real aircraft type 
     # Example: 00:00:00.00>CRE TN748,B747, 51.934621,5.599594,45,0,200
     outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ORIG '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.Origin[idx]) + '\n \n')   
     # Example: 00:00:00.00>ORIG,TN748,LFRS
     outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>DEST '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.Destination[idx]) + '\n \n')   
     # Example: 00:00:00.00>DEST,TN748,XXXX
-    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>LNAV '+str(AllFlights.CallSign[idx])+ ', ON' '\n \n')   
-    # Example: 00:00:00.00>LNAV,TN748,ON
-    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>VNAV '+str(AllFlights.CallSign[idx])+ ', ON' '\n \n')   
-    # Example: 00:00:00.00>VNAV,TN748,ON
         
     for k in range(len(AllFlights.Route_outside_TMA[idx].waypoints)):
         outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ADDWPT '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.Route_outside_TMA[idx].LAT[k])+','+ str(AllFlights.Route_outside_TMA[idx].LON[k]) +','+ str(float(AllFlights.Route_outside_TMA[idx].FL[k])*100.) + ',' + str(AllFlights.Route_outside_TMA[idx].spd[k]) + '\n \n')       
@@ -43,7 +40,11 @@ def scenario_creator(FlightID): #AllFlights.SimTime[idx]-simulation_start
     outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ADDWPT ' +str(AllFlights.CallSign[idx]) + ', ' + str(AllFlights.Route_TMA[idx].extrawpts_LAT[1]) + ', ' + str(AllFlights.Route_TMA[idx].extrawpts_LON[1]) + ',' +  str(0.) + ',' + str(AllFlights.Route_TMA[idx].spd[-1]) + '\n \n')
     #outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ADDWPT ' +str(AllFlights.CallSign[idx]) + ', ' + str(AllFlights.Route_TMA[idx].extrawpts_LAT[0]) + ', ' + str(AllFlights.Route_TMA[idx].extrawpts_LON[0]) + ',' +  str(0.) + ',' + str(AllFlights.Route_TMA[idx].spd[-1]) + '\n \n')
     
-    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ASAS ' +str(AllFlights.CallSign[idx]) + ', OFF' + '\n \n')
+    #outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ASAS ' +str(AllFlights.CallSign[idx]) + ', OFF' + '\n \n')
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>LNAV '+str(AllFlights.CallSign[idx])+ ', ON' '\n \n')   
+    # Example: 00:00:00.00>LNAV,TN748,ON
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>VNAV '+str(AllFlights.CallSign[idx])+ ', ON' '\n \n')   
+    # Example: 00:00:00.00>VNAV,TN748,ON
     
 #####################################################################################  
 
@@ -556,6 +557,14 @@ if len(sys.argv)>1:
 else:
     outputfile=open('scenario/scenariotest' + '.scn','w') #Specifies output file
 
+outputfile.write('### ARSIM SCENARIO FILE ###')
+outputfile.write('\n')
+outputfile.write('\n')
+outputfile.write('00:00:0>FF')
+outputfile.write('\n')
+outputfile.write('\n')
+outputfile.write('00:00:0>ASAS OFF')
+	
 for time in time_var:
     for k in range(len(AllFlights.SimTime)):
         if time==AllFlights.SimTime[k]:
@@ -597,6 +606,8 @@ for k in range(len(AllFlights.CallSign)):
     outputfile2.write(str(AllFlights.CallSign[k]) + \
     ', SimTime: ' + str(int(AllFlights.SimTime[k])) + \
     ', ST-sim_start: ' + str(int(AllFlights.SimTime[k]-simulation_start)) + \
+    ', Est_at_CBAS: ' + str(int(AllFlights.PreDepEstTime_at_CBAS[k])) + \
+    ', Est_at_CBAS corrected: ' + str(int(AllFlights.PreDepEstTime_at_CBAS[k]-simulation_start)) + \
     ', Est_at_IAF: ' + str(int(AllFlights.PreDepEstTime_at_IAF[k])) + \
     ', Est_at_IAF corrected: ' + str(int(AllFlights.PreDepEstTime_at_IAF[k]-simulation_start)) + \
     ', Est_at_RWY: ' + str(int(AllFlights.PreDepEstTime_at_RWY[k])) + \
