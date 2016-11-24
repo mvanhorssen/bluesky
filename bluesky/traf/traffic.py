@@ -32,7 +32,7 @@ except ImportError as err:
     print 'Falling back to BlueSky performance model'
     from perf import Perf
 
-from ScenarioGenerator_revised import *
+from scenario_generator import *
 from AMAN_class_definition import *
 import sys
 

@@ -1,7 +1,9 @@
 #scenario_functions.py
 import numpy as np
 from math import *
-from functions_alexander import *
+#from functions_alexander import *
+from ..tools.aero import *
+from ..tools.geo import rwgs84, qdrdist
 import random
 
 def FlightInfo(FlightID,lines):
@@ -214,7 +216,6 @@ class Route_outside_TMA:
              if default=='Ground' and self.flpathangle[j]>0:
                  default='Climb'
                
-             
              if (default=='Climb' and float(self.FL[j])>200) or (np.abs(self.flpathangle[j])<0.3 and default!='Descent'):
                  default='Cruise'
                  
@@ -222,8 +223,6 @@ class Route_outside_TMA:
                  if default=='Cruise' and float(self.FL[j+1])<300 and self.flpathangle[j]<0.:
                      default='Descent'
                 
-                 
-                 
              self.phase.append(default)
             
     def findLocation(self):
@@ -246,22 +245,22 @@ class Route_outside_TMA:
                 #nominal speed
                 speed=nom_climb #First waypoint: climb speed
                 alt = 0.5*(float(self.FL[j])+float(self.FL[j+1]))*100.*ft
-                speed2=mpers2kts(vcas2tasA(kts2mpers(speed),alt)) #speed in TAS
+                speed2=mpers2kts(vcas2tas(kts2mpers(speed),alt)) #speed in TAS
                 
                 #minimum speed
                 speed3=min_climb
-                speed4=mpers2kts(vcas2tasA(kts2mpers(speed3),alt)) #speed in TAS
+                speed4=mpers2kts(vcas2tas(kts2mpers(speed3),alt)) #speed in TAS
                 
             elif j<(len(self.waypoints)):
                 if self.phase[j-1]=='Climb':
                     #nominal speed
                     speed=nom_climb
                     alt = 0.5*(float(self.FL[j-1])+float(self.FL[j]))*100.*ft
-                    speed2=mpers2kts(vcas2tasA(kts2mpers(speed),alt)) #speed in TAS
+                    speed2=mpers2kts(vcas2tas(kts2mpers(speed),alt)) #speed in TAS
                 
                     #minium speed
                     speed3=min_climb
-                    speed4=mpers2kts(vcas2tasA(kts2mpers(speed3),alt)) #speed in TAS
+                    speed4=mpers2kts(vcas2tas(kts2mpers(speed3),alt)) #speed in TAS
                     
                 elif self.phase[j-1]=='Cruise' or self.phase[j-1]=='Descent':
                     alt = 0.5*(float(self.FL[j-1])+float(self.FL[j]))*100.*ft
@@ -290,11 +289,11 @@ class Route_outside_TMA:
                     if self.phase[j-1]=='Descent' or self.loc[j]=='AlmostIAF_IAF':
                         #nominal speed                        
                         speed=min(speed,nom_CAS_TOD_almost_IAF)
-                        speed2=mpers2kts(vcas2tasA(kts2mpers(speed),alt)) #speed in TAS 
+                        speed2=mpers2kts(vcas2tas(kts2mpers(speed),alt)) #speed in TAS 
 
                         #minimum speed
                         speed3=min(speed3,min_CAS_TOD_almost_IAF)
-                        speed4=mpers2kts(vcas2tasA(kts2mpers(speed3),alt)) #speed in TAS
+                        speed4=mpers2kts(vcas2tas(kts2mpers(speed3),alt)) #speed in TAS
 
             self.spd.append(speed)
             self.spd_TAS.append(speed2)
@@ -591,8 +590,8 @@ class Route_TMA:
                     self.minspd.append(speed_FAF_RWY)
                     
             alt = (0.5*float(self.FL[j-1])+float(self.FL[j]))*100.*ft
-            speed2=mpers2kts(vcas2tasA(kts2mpers(self.spd[j]),alt))
-            speed3=mpers2kts(vcas2tasA(kts2mpers(self.minspd[j]),alt))
+            speed2=mpers2kts(vcas2tas(kts2mpers(self.spd[j]),alt))
+            speed3=mpers2kts(vcas2tas(kts2mpers(self.minspd[j]),alt))
             
             self.spd_TAS.append(speed2)
             self.minspd_TAS.append(speed3)
@@ -832,85 +831,6 @@ def qdrdistA(latadeg,lonadeg,latbdeg,lonbdeg):
     distnm = dist
     return distnm
 
-def qdrdist(latd1,lond1,latd2,lond2):
-
-# Using WGS'84 calculate (input in degrees!)
-# In:
-#     latd1,lond1 en latd2, lond2 [deg] :positions 1 & 2
-# qdr [deg] = heading from 1 to 2
-# d [nm]    = distance from 1 to 2 in nm
-# Nautical mile: 1852. used for downward
-# compatibility
-
-# Haversine with average radius
-
-# Check for hemisphere crossing,
-# when simple average would not work
-
-# res1 for same hemisphere
-
-    res1 = rwgs84(0.5*(latd1+latd2))     
-
-# res2 :different hemisphere
-    a = 6378137.0       # [m] Major semi-axis WGS-84
-    r1 = rwgs84(latd1)
-    r2 = rwgs84(latd2)   
-    res2  = 0.5*(abs(latd1)*(r1+a) + abs(latd2)*(r2+a))/ \
-         (abs(latd1)+abs(latd2))
-
-# Condition
-    sw = (latd1*latd2>=0.)
-
-    r = sw*res1+(1-sw)*res2     
-
-# Convert to radians    
-    lat1 = np.radians(latd1)
-    lon1 = np.radians(lond1)
-    lat2 = np.radians(latd2)
-    lon2 = np.radians(lond2)
-  
-    sin1 = np.sin(0.5*(lat2-lat1))
-    sin2 = np.sin(0.5*(lon2-lon1))
-
-    coslat1 = np.cos(lat1)
-    coslat2 = np.cos(lat2)
-
-    root = sin1*sin1 + coslat1*coslat2*sin2*sin2    
-    d =  2.*r*np.arctan2(np.sqrt(root),np.sqrt(1.-root))
-     
-#    d =2.*r*np.arcsin(np.sqrt(sin1*sin1 + coslat1*coslat2*sin2*sin2))
-
-# Bearing from Ref. http://www.movable-type.co.uk/scripts/latlong.html
-
-    qdr = np.degrees(np.arctan2( np.sin(lon2-lon1) * coslat2, \
-              coslat1*np.sin(lat2)-np.sin(lat1)*coslat2*np.cos(lon2-lon1)))
-
-    return qdr,d/nm
-
-def rwgs84(latd):
-# From wikipedia's Earth radius:
-#
-# In:
-#     lat [deg] = latitude
-# Out:
-#     r [m] = earth radius according to WGS'84 geoid
-#
-    lat = np.radians(latd)
-    a = 6378137.0       # [m] Major semi-axis WGS-84
-    b = 6356752.314245  # [m] Minor semi-axis WGS-84 
-    coslat = np.cos(lat)
-    sinlat = np.sin(lat)
-
-    an = a*a*coslat
-    bn = b*b*sinlat
-    ad = a*coslat
-    bd = b*sinlat
-    
-# Calculate radius in meters
-    r = np.sqrt((an*an+bn*bn)/(ad*ad+bd*bd))
-
-    return r
-
 def pos_and_dist_and_bearing_2_newpos(LAT1,LON1,dist,bearing,R_Earth): #Degrees, distance in nm,R_Earth in m
     LAT1=np.deg2rad(LAT1) #rad
     LON1=np.deg2rad(LON1) #rad
@@ -1025,3 +945,23 @@ def find_extraflying_waypoints_dogleg(almostIAF_LAT,almostIAF_LON,IAF_LAT,IAF_LO
 
     return A_LAT,A_LON,alpha 
     
+# 8x AMAN_class_definition, 8x scenario_functions, 1x functions_alexander
+def kts2mpers(a):
+    b=0.51444*float(a)
+    return b
+# 8x AMAN_class_definition, 8x scenario_functions, 2x functions_alexander
+def mpers2kts(a):
+    b=float(a)*1.94384449
+    return b
+# 4x scenario_functions
+def determine_cruise_TAS_CAS(TAS_cruise,M_cruise,h_cruise): #h in feet, TAS in kts; Calculate which is the cruise CAS to be inserted, such that neither the CAS nor M is violated
+    alt=h_cruise*ft #h in feet, alt in m
+    TAS_mps=vmach2tas(M_cruise,alt)
+    TAS_kts =mpers2kts(TAS_mps)
+    
+    calculated_cruise_TAS_kts=min(TAS_cruise,TAS_kts) 
+    calculated_cruise_TAS_mps=kts2mpers(calculated_cruise_TAS_kts)
+    
+    calculated_cruise_CAS_kts=mpers2kts(vtas2cas(calculated_cruise_TAS_mps,alt))
+    
+    return calculated_cruise_TAS_kts,calculated_cruise_CAS_kts  

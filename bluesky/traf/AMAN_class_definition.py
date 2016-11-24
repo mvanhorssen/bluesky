@@ -1,7 +1,7 @@
 # AMAN_class_definition.py
 from scenario_functions import *
-from functions_alexander import *
-from ScenarioGenerator_revised import AllFlights # AllFlights contains information on all flights to be simulated
+#from functions_alexander import *
+from scenario_generator import AllFlights # AllFlights contains information on all flights to be simulated
 import numpy as np
 import copy as copy
 from performanceA import *
@@ -549,10 +549,10 @@ class AMAN(Flights):
                             newTAS_temp=(self.CurrDirectDist_to_nextwpt[idx]/flyingtime_temp)*3600.
                             if using_new_speeds == True:
 								alt = 0.5*(BS_Altitude[k]+float(self.AllFlights.Route_outside_TMA[idx].FL[z])*100*ft)
-								newCAS_temp=mpers2kts(vtas2casA(kts2mpers(newTAS_temp),alt))
+								newCAS_temp=mpers2kts(vtas2cas(kts2mpers(newTAS_temp),alt))
 								del alt
                             else:
-								newCAS_temp=mpers2kts(vtas2casA(kts2mpers(newTAS_temp),BS_Altitude[k]))
+								newCAS_temp=mpers2kts(vtas2cas(kts2mpers(newTAS_temp),BS_Altitude[k]))
  
                             # Alter speed to next waypoint in object
                             self.AllFlights.Route_outside_TMA[idx].spd[z]=max(newCAS_temp,self.Original_AllFlights.Route_outside_TMA[idx].minspd[z]) # self.CurrFlplCAS_nextwpt[idx] will be using this value
@@ -586,7 +586,7 @@ class AMAN(Flights):
                             newTAS_temp=self.AllFlights.Route_outside_TMA[idx].spd_TAS[z]-ratio*(self.AllFlights.Route_outside_TMA[idx].spd_TAS[z]-self.AllFlights.Route_outside_TMA[idx].minspd_TAS[z])
                             if using_new_speeds == True:
 								alt = 0.5*(float(self.AllFlights.Route_outside_TMA[idx].FL[z-1])+float(self.AllFlights.Route_outside_TMA[idx].FL[z]))*100*ft
-								newCAS_temp=mpers2kts(vtas2casA(kts2mpers(newTAS_temp),alt))
+								newCAS_temp=mpers2kts(vtas2cas(kts2mpers(newTAS_temp),alt))
 								del alt
                             else:
 								if newTAS_temp!=TAS1:
@@ -625,12 +625,12 @@ class AMAN(Flights):
                     ## newTAS_temp = TAS2 - ratio*(TAS2-TAS1)
                     if using_new_speeds == True:
 						alt = 0.5*(float(self.AllFlights.Route_outside_TMA[idx].FL[z])+float(self.AllFlights.Route_TMA[idx].FL[0]))*100*ft
-						newCAS_temp=mpers2kts(vtas2casA(kts2mpers(newTAS_temp),alt))
+						newCAS_temp=mpers2kts(vtas2cas(kts2mpers(newTAS_temp),alt))
 						del alt
                     else:
 						if newTAS_temp!=TAS1:
 							newCAS_temp=CAS1+((CAS2-CAS1)/(TAS2-TAS1))*(newTAS_temp-TAS1)
-							## newCAS_temp = vtas2casA(newTAS_temp,self.Original_AllFlights.Route_TMA[idx].FL[0]*100*ft)
+							## newCAS_temp = vtas2cas(newTAS_temp,self.Original_AllFlights.Route_TMA[idx].FL[0]*100*ft)
 						elif newTAS_temp==TAS1:
 							newCAS_temp=CAS1
                 
@@ -861,10 +861,10 @@ class AMAN(Flights):
                             newTAS_temp=(self.CurrDirectDist_to_nextwpt[idx]/flyingtime_temp)*3600.
                             if using_new_speeds == True:
 								alt = 0.5*(BS_Altitude[k]+float(self.AllFlights.Route_outside_TMA[idx].FL[z])*100*ft)
-								newCAS_temp=mpers2kts(vtas2casA(kts2mpers(newTAS_temp),alt))
+								newCAS_temp=mpers2kts(vtas2cas(kts2mpers(newTAS_temp),alt))
 								del alt
                             else:
-								newCAS_temp=mpers2kts(vtas2casA(kts2mpers(newTAS_temp),BS_Altitude[k]))
+								newCAS_temp=mpers2kts(vtas2cas(kts2mpers(newTAS_temp),BS_Altitude[k]))
                         
                             # Alter speed to next waypoint in object
                             self.AllFlights.Route_outside_TMA[idx].spd[z]=newCAS_temp # self.CurrFlplCAS_nextwpt[idx] will be using this value
@@ -897,7 +897,7 @@ class AMAN(Flights):
                             newTAS_temp=self.AllFlights.Route_outside_TMA[idx].spd_TAS[z]+ratio*(self.Original_AllFlights.Route_outside_TMA[idx].spd_TAS[z]-self.AllFlights.Route_outside_TMA[idx].spd_TAS[z]) # Original_AllFlights holds nominal (maximum) speed
                             if using_new_speeds == True:
 								alt = 0.5*(float(self.AllFlights.Route_outside_TMA[idx].FL[z-1])+float(self.AllFlights.Route_outside_TMA[idx].FL[z]))*100*ft
-								newCAS_temp=mpers2kts(vtas2casA(kts2mpers(newTAS_temp),alt))
+								newCAS_temp=mpers2kts(vtas2cas(kts2mpers(newTAS_temp),alt))
 								del alt
                             else:
 								if newTAS_temp!=TAS1:
@@ -935,7 +935,7 @@ class AMAN(Flights):
                     newTAS_temp=self.AllFlights.Route_TMA[idx].spd_TAS[0]+ratio*(self.Original_AllFlights.Route_TMA[idx].spd_TAS[0]-self.AllFlights.Route_TMA[idx].spd_TAS[0])                            
                     if using_new_speeds == True:
 						alt = 0.5*(float(self.AllFlights.Route_outside_TMA[idx].FL[z])+float(self.AllFlights.Route_TMA[idx].FL[0]))*100*ft
-						newCAS_temp=mpers2kts(vtas2casA(kts2mpers(newTAS_temp),alt))
+						newCAS_temp=mpers2kts(vtas2cas(kts2mpers(newTAS_temp),alt))
 						del alt
                     else:
 						if newTAS_temp!=TAS1:

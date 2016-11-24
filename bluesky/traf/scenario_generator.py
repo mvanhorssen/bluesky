@@ -1,6 +1,6 @@
 # ScenarioGenerator.py
 from scenario_functions import *
-from functions_alexander import *
+#from functions_alexander import *
 from performanceA import *
 from Tkinter import *
 import random
@@ -24,7 +24,7 @@ def scenario_creator(FlightID): #AllFlights.SimTime[idx]-simulation_start
     outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ORIG '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.Origin[idx]) + '\n \n')   
     # Example: 00:00:00.00>ORIG,TN748,LFRS
     outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>DEST '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.Destination[idx]) + '\n \n')   
-    # Example: 00:00:00.00>DEST,TN748,XXXX
+    # Example: 00:00:00.00>DEST,TN748,EHAM
         
     for k in range(len(AllFlights.Route_outside_TMA[idx].waypoints)):
         outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ADDWPT '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.Route_outside_TMA[idx].LAT[k])+','+ str(AllFlights.Route_outside_TMA[idx].LON[k]) +','+ str(float(AllFlights.Route_outside_TMA[idx].FL[k])*100.) + ',' + str(AllFlights.Route_outside_TMA[idx].spd[k]) + '\n \n')       

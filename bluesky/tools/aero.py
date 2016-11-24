@@ -72,7 +72,7 @@ def vatmos(alt):  # alt in m
 
 def vtemp(alt):         # hinput [m]
     # Temp
-    Tstrat = np.array(len(alt) * [216.65])  # max 22 km!
+    Tstrat = 216.65  # max 22 km!
     T = np.maximum(288.15 - 0.0065 * alt, Tstrat)
 
     return T
