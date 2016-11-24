@@ -1,6 +1,5 @@
-# ScenarioGenerator.py
+# scenario_generator.py
 from scenario_functions import *
-#from functions_alexander import *
 from performanceA import *
 from Tkinter import *
 import random

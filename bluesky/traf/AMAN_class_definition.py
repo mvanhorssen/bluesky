@@ -1,6 +1,5 @@
 # AMAN_class_definition.py
 from scenario_functions import *
-#from functions_alexander import *
 from scenario_generator import AllFlights # AllFlights contains information on all flights to be simulated
 import numpy as np
 import copy as copy
