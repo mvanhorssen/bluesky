@@ -1,10 +1,11 @@
-#ScenarioGenerator.py
+# ScenarioGenerator.py
 from scenario_functions import *
 from functions_alexander import *
 from performanceA import *
 from Tkinter import *
 import random
 import sys
+
 ##################################################################################### 
 # sys.argv[1] = name
 # sys.argv[2] = DatasetN
@@ -17,8 +18,8 @@ import sys
        
 def scenario_creator(FlightID): #AllFlights.SimTime[idx]-simulation_start
     idx=AllFlights.FlightIdentifier.index(FlightID)
-    outputfile.write('\n \n \n \n \n')
-    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>CRE '+str(AllFlights.CallSign[idx])+ ', '+'B744'+','+str(AllFlights.Route_outside_TMA[idx].LAT[0])+','+str(AllFlights.Route_outside_TMA[idx].LON[0]) + ',' + str(AllFlights.StartHeading[idx]) + ',0,' + str(AllFlights.Route_outside_TMA[idx].spd[0]) + '\n \n')  #B747 should be replaced with real aircraft type 
+    outputfile.write('\n \n \n \n')
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>CRE '+str(AllFlights.CallSign[idx])+ ', '+'B744'+','+str(AllFlights.Route_outside_TMA[idx].LAT[0])+','+str(AllFlights.Route_outside_TMA[idx].LON[0]) + ',' + str(AllFlights.StartHeading[idx]) + ',0,' + str(AllFlights.Route_outside_TMA[idx].spd[0]) + '\n \n')  # B744 should be replaced with real aircraft type 
     # Example: 00:00:00.00>CRE TN748,B747, 51.934621,5.599594,45,0,200
     outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ORIG '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.Origin[idx]) + '\n \n')   
     # Example: 00:00:00.00>ORIG,TN748,LFRS
@@ -35,20 +36,96 @@ def scenario_creator(FlightID): #AllFlights.SimTime[idx]-simulation_start
     for k in range(len(AllFlights.Route_TMA[idx].waypoints)):
         outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ADDWPT '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.Route_TMA[idx].LAT[k])+','+ str(AllFlights.Route_TMA[idx].LON[k]) +','+ str(float(AllFlights.Route_TMA[idx].FL[k])*100.) + ',' + str(AllFlights.Route_TMA[idx].spd[k]) + '\n \n')       
         
-    #EXTRA WAYPOINTS!
-    outputfile.write('\n')
+    # Add extra waypoints
     outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ADDWPT ' +str(AllFlights.CallSign[idx]) + ', ' + str(AllFlights.Route_TMA[idx].extrawpts_LAT[1]) + ', ' + str(AllFlights.Route_TMA[idx].extrawpts_LON[1]) + ',' +  str(0.) + ',' + str(AllFlights.Route_TMA[idx].spd[-1]) + '\n \n')
     #outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ADDWPT ' +str(AllFlights.CallSign[idx]) + ', ' + str(AllFlights.Route_TMA[idx].extrawpts_LAT[0]) + ', ' + str(AllFlights.Route_TMA[idx].extrawpts_LON[0]) + ',' +  str(0.) + ',' + str(AllFlights.Route_TMA[idx].spd[-1]) + '\n \n')
     
-    #outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ASAS ' +str(AllFlights.CallSign[idx]) + ', OFF' + '\n \n')
     outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>LNAV '+str(AllFlights.CallSign[idx])+ ', ON' '\n \n')   
     # Example: 00:00:00.00>LNAV,TN748,ON
-    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>VNAV '+str(AllFlights.CallSign[idx])+ ', ON' '\n \n')   
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>VNAV '+str(AllFlights.CallSign[idx])+ ', ON')   
     # Example: 00:00:00.00>VNAV,TN748,ON
     
 #####################################################################################  
 
-print(str(sys.argv))
+def print_text():
+	print('Name: %s' % E_Name.get())
+	print('Dataset: %s' % E_Dataset.get())
+	print('Approach margin: %s' % E_approach_margin.get())
+	print('Popup Scaling: %s' % E_popup_scaling.get())
+	print('Arrival Manager: %s' % var_AMAN)
+	print('Trajectory Predictor: %s' % TP_var.get())
+	print('Pre-departure Delay: %s' % E_predep_delay.get())
+	filename = E_Dataset.get()
+	approach_margin = float(E_approach_margin.get())
+	master_quit()
+
+def select_AMAN():
+	if AMAN_var.get() == 0:
+		var_AMAN = 'ASAP BASIC'
+
+def master_quit():
+	master.destroy()
+
+master = Tk()
+master.wm_title('Initialize AMAN variables')
+# Name Entry
+Label(master, text="Name").grid(row=0)
+E_Name = Entry(master)
+E_Name.insert(10, 'Name')
+E_Name.grid(row=0,column=1)
+# Dataset Entry
+Label(master, text="Dataset").grid(row=1)
+E_Dataset = Entry(master)
+E_Dataset.insert(10, 'Dataset1')
+E_Dataset.grid(row=1,column=1)
+# Approach Margin Entry
+Label(master, text="Approach Margin [sec]").grid(row=2)
+E_approach_margin = Entry(master)
+E_approach_margin.insert(10, '30')
+E_approach_margin.grid(row=2,column=1)
+# Popup Scaling Entry
+Label(master, text="Popup Scaling [%]").grid(row=3)
+E_popup_scaling = Entry(master)
+E_popup_scaling.insert(10, '100')
+E_popup_scaling.grid(row=3,column=1)
+# Arrival Manager Entry
+Label(master, text="Arrival Manager").grid(row=4)
+AMAN_var = IntVar()
+E_AMAN = Radiobutton(master, text='AMAN', variable = AMAN_var, value=0, command=select_AMAN)
+E_AMAN.grid(row=4,column=1)
+E_EAMAN = Radiobutton(master, text='E-AMAN', variable = AMAN_var, value=1)
+E_EAMAN.grid(row=4,column=2)
+E_XMAN = Radiobutton(master, text='XMAN', variable = AMAN_var, value=2)
+E_XMAN.grid(row=4,column=3)
+# Trajectory Predictor Entry
+Label(master, text="Trajectory Predictor").grid(row=5)
+TP_var = IntVar()
+E_TP_ASAPBASIC = Radiobutton(master, text='ASAP BASIC', variable = TP_var, value=0)
+E_TP_ASAPBASIC.grid(row=5,column=1)
+E_TP_DYNAMIC = Radiobutton(master, text='DYNAMIC', variable = TP_var, value=1)
+E_TP_DYNAMIC.grid(row=5,column=2)
+E_TP_ASAPUPGRADE = Radiobutton(master, text='ASAP UPGRADE', variable = TP_var, value=2)
+E_TP_ASAPUPGRADE.grid(row=5,column=3)
+# Pre-departure Delay Entry
+Label(master, text="Pre-departure Delay [sec]").grid(row=6)
+E_predep_delay = Entry(master)
+E_predep_delay.insert(10, '0')
+E_predep_delay.grid(row=6,column=1)
+
+Button(master, text='Quit', command=master_quit).grid(row=8,column=0)
+Button(master, text='Run', command=print_text).grid(row=8,column=1)
+
+master.mainloop()
+
+print
+print('*********************************************************************************************')
+print('*********************************************************************************************')
+print('********************************** AMAN Research Simulator **********************************')
+print('*********************************************************************************************')
+print('*********************************************************************************************')
+print
+
+#print(str(sys.argv))
 if len(sys.argv)>3:
     if sys.argv[2]=='Dataset1':
         filename='20150707Regulated58UTC.so6'
@@ -121,12 +198,11 @@ if len(sys.argv)>3:
 
     elif sys.argv[2]=='Dataset32':
         filename='20150914Regulated1316UTC.so6'
-        
-        
+           
 else:
-    filename='20150707Regulated58UTC.so6' #Traffic .so6 file to be simulated
+    filename='20150707Regulated58UTC.so6' # Traffic .so6 file to be simulated
 
-intarrtime_AMAN_runway=100. #Specifies the inter-arrival time for each runway
+intarrtime_AMAN_runway=100. # Specifies the inter-arrival time for each runway
 
 if len(sys.argv)>7:
     approach_margin = float(sys.argv[7])
@@ -138,7 +214,6 @@ if len(sys.argv)>4:
         print
         print 'AMAN'
         print
-            
         AMAN_horizon=120. # [nm]; Planning Horizon
         SARA_horizon=100. # [nm]; Active Advisory Horizon
         Take_into_account_schedule_horizon=250. # [nm]; From this horizon, aircraft are used for scheduling
@@ -182,7 +257,7 @@ else:
     Freeze_horizon=200. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon
 
 #####
-#Scenario editing
+# Scenario editing
 max_flpl_dist=700. # [nm]; flights with a flight plan distance larger than this value are replaced with a NORMAL flight (i.e. not a pop-up flight)
 
 if len(sys.argv)>3:
@@ -191,22 +266,25 @@ else:
     popup_scaling=100. # [%]; increase/decrease number of pop-up flights
 
 #####
-#DO NOT EDIT
-popup_scaling=popup_scaling/100. #Scaling [percentage] is transformed into factor
-#DO NOT EDIT
+# DO NOT EDIT
+popup_scaling=popup_scaling/100. # Scaling [percentage] is transformed into factor
+# DO NOT EDIT
 #####
 
 possible_IAFs=['RIVER','SUGOL','ARTIP']
-runways_use_land=['18C-27','18C','27'] #Specifies, for each IAF in possible_IAFs, the active landing runway
+runways_use_land=['18C-27','18C','27'] # Specifies, for each IAF in possible_IAFs, the active landing runway
 unique_runways=['18C','27'] 
 
-Popup_exclusion_list=['DUMMY'] #For a horizon of 200 nm or smaller (E-AMAN), these airports are not considered as pop-up airports
-wpt_exclusionlist=['ROBVI'] #Sometimes necessary to remove certain waypoint for the sake of convenience (e.g. ROBVI). If this waypoint is not deleted, last wpt before SUGOL is SOBVI, which is located too close to SUGOL to sufficiently decelerate. For convenience, SOBVI is removed. Only has limited impact, as wpt is only used after MONIL and LUTEX
+Popup_exclusion_list=['DUMMY'] # For a horizon of 200 nm or smaller (E-AMAN), these airports are not considered as pop-up airports
+wpt_exclusionlist=['ROBVI'] # Sometimes necessary to remove certain waypoint for the sake of convenience (e.g. ROBVI). If this waypoint is not deleted, last wpt before SUGOL is SOBVI, which is located too close to SUGOL to sufficiently decelerate. For convenience, SOBVI is removed. Only has limited impact, as wpt is only used after MONIL and LUTEX
 
-#For the sake of how BlueSky works, it is necessary to also include the last waypoint of the TMA route of the opposite runway
+# For the sake of how BlueSky works, it is necessary to also include the last waypoint of the TMA route of the opposite runway
 allrunways=['18L','18C','18R','36L','36C','36R','09','27','06','24','04','22']
 allrunways_opposite=['36R','36C','36L','18R','18C','18L','27','09','24','06','22','04']
-#####################################################################################  
+
+######################################################################################## 
+
+print('************************************ Generating Scenario ************************************')
 
 A=open(filename,'r')
 lines=A.readlines()
@@ -215,11 +293,11 @@ A.close()
 FlightIdentifiers=[]
 for line in lines:
     item=line.strip().split(" ")
-    FlightIdentifiers.append(item[16].strip().upper()) #Extract Flight Identifiers from .so6 traffic file
+    FlightIdentifiers.append(item[16].strip().upper()) # Extract Flight Identifiers from .so6 traffic file
 
-FlightIdentifiers=list(set((FlightIdentifiers))) #Remove duplicates
+FlightIdentifiers=list(set((FlightIdentifiers))) # Remove duplicates
 
-AllFlights=Flights() #Construct AllFlights object
+AllFlights=Flights() # Construct AllFlights object
 
 for flight in FlightIdentifiers:
     segments,origin,destination,actype,timeb,FLb,CallSign,Dateb,LATb,LONb,Sequence=FlightInfo(flight,lines) 
@@ -228,22 +306,22 @@ for flight in FlightIdentifiers:
         segment=segments[k]
         if segment[0].strip() != '*':
             item=segments[k].strip().split("_")
-            if item[0] not in wpt_exclusionlist: #Sometimes necessary to remove certain waypoint for the sake of convenience (e.g. ROBVI). If this waypoint is not deleted, last wpt before SUGOL is SOBVI, which is located too close to SUGOL to sufficiently decelerate. For convenience, SOBVI is removed. Only has limited impact, as wpt is only used after MONIL and LUTEX
+            if item[0] not in wpt_exclusionlist: # Sometimes necessary to remove certain waypoint for the sake of convenience (e.g. ROBVI). If this waypoint is not deleted, last wpt before SUGOL is SOBVI, which is located too close to SUGOL to sufficiently decelerate. For convenience, SOBVI is removed. Only has limited impact, as wpt is only used after MONIL and LUTEX
                 AllFlights.Route_outside_TMA[-1].addwpt(item[0],LATb[k],LONb[k],FLb[k]) 
               
-A=open('TMAroutes.txt','r') #Extract data from TMA routes file
+A=open('TMAroutes.txt','r') # Extract data from TMA routes file
 lines=A.readlines()
 A.close()    
 
 B=open('waypoints.dat','r')
 lines2=B.readlines()
 B.close()
-del lines2[0] #Necessary to remove header
+del lines2[0] # Necessary to remove header
 
 C=open('airports.dat','r')
 lines3=C.readlines()
 C.close()
-del lines3[0] #Necessary to remove header
+del lines3[0] # Necessary to remove header
 
 tempdatabase_wpt=[]
 tempdatabase_wptlat=[]
@@ -253,35 +331,30 @@ tempdatabase_apt=[]
 tempdatabase_aptlat=[]
 tempdatabase_aptlon=[]
 
-for j in range(len(AllFlights.Route_outside_TMA)): #Find IAF used and set route within TMA
-    AllFlights.Route_outside_TMA[j].findIAF(possible_IAFs) #Which IAF is used by a particular aircraft?
+for j in range(len(AllFlights.Route_outside_TMA)): # Find IAF used and set route within TMA
+    AllFlights.Route_outside_TMA[j].findIAF(possible_IAFs) # Which IAF is used by a particular aircraft?
 	
-    AllFlights.Route_outside_TMA[j].find_CBAS_waypoint()
-    AllFlights.Route_outside_TMA[j].remove_intermediate_waypoints()
+    AllFlights.Route_outside_TMA[j].find_CBAS_waypoint() # Add CBAS as waypoint
+    AllFlights.Route_outside_TMA[j].remove_intermediate_waypoints() # Remove unwanted waypoints
 	
-    #Delete all waypoints from IAF onwards, as these will be part of the route in TMA
-    AllFlights.Route_outside_TMA[j].calc_dist_and_heading()
-    AllFlights.Route_outside_TMA[j].delete_tooshort_legs() #Includes a re-calculation of distances and headings
-    AllFlights.Route_outside_TMA[j].calc_dist_and_heading()
-    #Find flight path angle
-    AllFlights.Route_outside_TMA[j].findFlightPathAngle()
+    AllFlights.Route_outside_TMA[j].calc_dist_and_heading() # Calculate distance and heading between waypoints
+    AllFlights.Route_outside_TMA[j].delete_tooshort_legs() # Delete short legs
+    AllFlights.Route_outside_TMA[j].calc_dist_and_heading() # Re-calculate distance and heading between waypoints
+    
+    AllFlights.Route_outside_TMA[j].findFlightPathAngle() # Find flight path angle
     
     idx=AllFlights.Route_outside_TMA[j].waypoints.index(AllFlights.Route_outside_TMA[j].whichIAF)
-    AllFlights.Route_outside_TMA[j].delwpts_fromIAFonwards(idx) #delete waypoints from IAF onwards   
+    AllFlights.Route_outside_TMA[j].delwpts_fromIAFonwards(idx) # Delete waypoints from IAF onwards   
     
-    #Find flight phase for each segment
-    AllFlights.Route_outside_TMA[j].findPhase()  
+    AllFlights.Route_outside_TMA[j].findPhase() # Find flight phase for each segment
       
-    #Find out which is the last STAR point before IAF (important, as speed is to  be reduced to 250 from this point onwards)    
-    AllFlights.Route_outside_TMA[j].findalmostIAF()
+    AllFlights.Route_outside_TMA[j].findalmostIAF() # Find waypoint before IAF
     
-    #Segment Type
-    AllFlights.Route_outside_TMA[j].findLocation()  
+    AllFlights.Route_outside_TMA[j].findLocation() # Segment type
         
-    #Find out which RWY is used, such that the TMA route can be established
-    AllFlights.Route_outside_TMA[j].findRWY(AllFlights.Route_outside_TMA[j].whichIAF,possible_IAFs,runways_use_land,j)
+    AllFlights.Route_outside_TMA[j].findRWY(AllFlights.Route_outside_TMA[j].whichIAF,possible_IAFs,runways_use_land,j) # Find runway
         
-    #Find the necessary TMA route waypoints
+    # Find the necessary TMA route waypoints and add to route object
     TMAroute_waypoints=find_TMAroute(lines,AllFlights.Route_outside_TMA[j].whichIAF,AllFlights.Route_outside_TMA[j].whichRWY)
     
     for k in range(len(TMAroute_waypoints)):   
@@ -314,72 +387,69 @@ for j in range(len(AllFlights.Route_outside_TMA)): #Find IAF used and set route 
     AllFlights.Destination_LON.append(LON)
     del LAT,LON
     
-    AllFlights.Route_TMA[j].determine_extrawpts(AllFlights.Route_outside_TMA[j].whichRWY,allrunways,allrunways_opposite,lines,lines2)
+    AllFlights.Route_TMA[j].determine_extrawpts(AllFlights.Route_outside_TMA[j].whichRWY,allrunways,allrunways_opposite,lines,lines2) # Find extra waypoints
     
-    #Calculate distances between waypoints
-    AllFlights.Route_TMA[j].calc_dist_and_heading()
+    AllFlights.Route_TMA[j].calc_dist_and_heading() # Calculate distance and heading between waypoints
     
-    #Find FAF (Last waypoint before actual runway)    
-    AllFlights.Route_TMA[j].findFAF()
+    AllFlights.Route_TMA[j].findFAF() # Find FAF (last waypoint before runway)    
     
-    #Segment type
-    AllFlights.Route_TMA[j].findLocation()
-    #Calculate distances for overall flight (direct in-between and total flight plan distance)
-    AllFlights.calculate_distances(j,AMAN_horizon,Popup_exclusion_list)
-
-    #Assign speeds in TMA
-    AllFlights.Route_TMA[j].calculate_altitudes()    
+    AllFlights.Route_TMA[j].findLocation() # Segment type
     
-    AllFlights.Route_outside_TMA[j].calculate_Speeds2(nom_climb,nom_cruise_M,nom_cruise_spd,nom_CAS_TOD_almost_IAF,min_climb,min_cruise_M,min_cruise_spd,min_CAS_TOD_almost_IAF)
-    AllFlights.Route_TMA[j].calculate_Speeds(AllFlights.Route_outside_TMA[j],nom_CAS_almostIAF_IAF,nom_CAS_IAF_FAF,nom_CAS_FAF_RWY,min_CAS_almostIAF_IAF,min_CAS_IAF_FAF,min_CAS_FAF_RWY)
+    AllFlights.calculate_distances(j,AMAN_horizon,Popup_exclusion_list) # Calculate distances for overall flight (direct in-between and total flight plan distance)
+	
+    AllFlights.Route_TMA[j].calculate_altitudes() # Calculate altitude inside TMA
     
-    #Estimate flying times
-    AllFlights.Route_TMA[j].estimate_flyingtimes() #in TMA
-    AllFlights.Route_outside_TMA[j].estimate_flyingtimes(AllFlights.Route_TMA[j]) #outside TMA
-    AllFlights.Route_outside_TMA[j].estimate_flyingtime_CBAS()
+	# Calculate speeds
+    AllFlights.Route_outside_TMA[j].calculate_Speeds(nom_climb,nom_cruise_M,nom_cruise_spd,nom_CAS_TOD_almost_IAF,min_climb,min_cruise_M,min_cruise_spd,min_CAS_TOD_almost_IAF) # Outside TMA
+    AllFlights.Route_TMA[j].calculate_Speeds(AllFlights.Route_outside_TMA[j],nom_CAS_almostIAF_IAF,nom_CAS_IAF_FAF,nom_CAS_FAF_RWY,min_CAS_almostIAF_IAF,min_CAS_IAF_FAF,min_CAS_FAF_RWY) # Inside TMA
     
-    AllFlights.calculate_total_estFT(j)    
+    # Estimate flying times
+    AllFlights.Route_TMA[j].estimate_flyingtimes() # In TMA
+    AllFlights.Route_outside_TMA[j].estimate_flyingtimes(AllFlights.Route_TMA[j]) # Outside TMA
+    AllFlights.Route_outside_TMA[j].estimate_flyingtime_CBAS() # To CBAS
+    AllFlights.calculate_total_estFT(j) # Total
     
-    AllFlights.Route_outside_TMA[j].calc_directdist_wpt_RWY(AllFlights.Route_TMA[j])
+    AllFlights.Route_outside_TMA[j].calc_directdist_wpt_RWY(AllFlights.Route_TMA[j]) # Calculate direct distance
     
-    #Determine how much delay can be absorbed by reducing speed from nominal speed to minimum speed in each segment
-    AllFlights.Route_TMA[j].calculate_maxpossible_spddelabs()    
-    AllFlights.Route_outside_TMA[j].calculate_maxpossible_spddelabs(AllFlights.Route_TMA[j])
-    AllFlights.calculate_maxpossible_spddelabs(j)
+    # Determine how much delay can be absorbed by reducing speed from nominal speed to minimum speed in each segment
+    AllFlights.Route_TMA[j].calculate_maxpossible_spddelabs() # In TMA
+    AllFlights.Route_outside_TMA[j].calculate_maxpossible_spddelabs(AllFlights.Route_TMA[j]) # Outside TMA
+    AllFlights.calculate_maxpossible_spddelabs(j) # Total
     
-    AllFlights.estimate_CBAS_IAF_runway_arrtimes(j) #calculate pre-departure estimates for arr times at IAF and runway
+    AllFlights.estimate_CBAS_IAF_runway_arrtimes(j) # Calculate pre-departure estimates for arrival times at CBAS, IAF and RWY
     
-    #Determine start heading
-    AllFlights.determine_start_heading(j)    
+    AllFlights.determine_start_heading(j) # Determine start heading
  
-################################################################################################################################################################################
-#Edit the scenario, such that it is more to my liking
-########################################################################################
-#First provide some information on the 'original' dataset
+######################################################################################## 
+
+# Edit the scenario, such that it is more to my liking
+# First provide some information on the 'original' dataset
 totflights=len(AllFlights.CallSign)
 popupflights=AllFlights.PopupLabel.count('POPUP')
 popupratio=float(popupflights)/float(totflights)
-print 'POPUP (Original): ',popupflights,'  TOT: ', totflights,'  RATIO [%]: ',100*popupratio
-########################################################################################
-#Secondly, edit the scenario. 
-#Remove all flights that are too long
+print 'ORIGINAL POPUP: ',popupflights,'  TOT: ', totflights,'  RATIO [%]: ',100*popupratio
+
+# Secondly, edit the scenario. 
+print
+print('************************************* Editing Scenario **************************************')
+# Remove all flights that are too long
 removed_flights_callsign=[]
 new_flights_callsign=[]
 
 counter_replaced_longhaul=0
 
-z=0 #Index that will select a new flight
+z=0 # Index that will select a new flight
 
-#Find suitable flight (no pop-up, no long-distance)
+# Find suitable flight (no pop-up, no long-distance)
 for j in range(len(AllFlights.Route_outside_TMA)):
     if AllFlights.Total_flightplan_dist[j]>max_flpl_dist:
         repl=False
         while repl==False:
             
-            if AllFlights.PopupLabel[z]=='NORMAL' and AllFlights.Origin[z] !='EDDS' and AllFlights.Total_flightplan_dist[z]<=max_flpl_dist and AllFlights.Route_outside_TMA[z].whichIAF==AllFlights.Route_outside_TMA[j].whichIAF and AllFlights.Route_outside_TMA[z].whichRWY==AllFlights.Route_outside_TMA[j].whichRWY:            #Check that this flights is 1) no pop-up flight ; 2) no long-haul flight
+            if AllFlights.PopupLabel[z]=='NORMAL' and AllFlights.Origin[z] !='EDDS' and AllFlights.Total_flightplan_dist[z]<=max_flpl_dist and AllFlights.Route_outside_TMA[z].whichIAF==AllFlights.Route_outside_TMA[j].whichIAF and AllFlights.Route_outside_TMA[z].whichRWY==AllFlights.Route_outside_TMA[j].whichRWY: # Check that this flights is 1) no pop-up flight and 2) no long-haul flight
                 removed_flights_callsign.append(AllFlights.CallSign[j])                
                 
-                AllFlights.replace_flight(j,z,'REP'+str(counter_replaced_longhaul)) #j is the long-haul flight, z the NORMAL
+                AllFlights.replace_flight(j,z,'REP'+str(counter_replaced_longhaul)) # j is the long-haul flight, z the NORMAL
                 
                 repl=True 
                 
@@ -391,9 +461,9 @@ for j in range(len(AllFlights.Route_outside_TMA)):
             if z>(len(AllFlights.Route_outside_TMA)-1):
                 z=0
                 
-print 'Replaced (long): ',counter_replaced_longhaul
-########################################################################################        
-#Add pop-up flights if necessary (replace normal flights, add pop-up flights)
+print 'Replaced flights: ',counter_replaced_longhaul
+      
+# Add pop-up flights if necessary (replace normal flights, add pop-up flights)
 if popup_scaling>1:
     indexes_tobereplaced_start=[]
     indexes_tobereplaced_final=[]
@@ -448,7 +518,7 @@ if popup_scaling>1:
                     indexes_replacements_final.append(element)
                     repl=True
                     
-            if countertemp>=1000: #In certain cases it is necessary to revise the NORMAL flight that had to be replaced, as there is no pop-up flight using the same IAF/RWY
+            if countertemp>=1000: # In certain cases it is necessary to revise the NORMAL flight that had to be replaced, as there is no pop-up flight using the same IAF/RWY
                 nextindex=indexes_tobereplaced_final[counter]+1
                 while AllFlights.PopupLabel[nextindex]=='POPUP' or (nextindex in indexes_tobereplaced_final):
                     nextindex=nextindex+1
@@ -474,8 +544,8 @@ if popup_scaling>1:
     print 'Replaced (normal>popup): ',counter_replaced_extrapopup
 
     del element
-######################################################################################## 
-#Remove pop-up flights if necessary
+ 
+# Remove pop-up flights if necessary
 if popup_scaling<1:
     indexes_tobereplaced_start=[]
     indexes_tobereplaced_final=[]
@@ -540,24 +610,34 @@ if popup_scaling<1:
     print 'Replaced (popup>normal): ',counter_replaced_extranormal
 
     del element
-######################################################################################## 
-print 
+
+# Scenario editing completed
 totflights=len(AllFlights.CallSign)
 popupflights=AllFlights.PopupLabel.count('POPUP')
 popupratio=float(popupflights)/float(totflights)
-print 'POPUP: ',popupflights,'  TOT: ', totflights,'  RATIO [%]: ',100*popupratio
+print '(REVISED) POPUP: ',popupflights,'  TOT: ', totflights,'  RATIO [%]: ',100*popupratio
 
-########################################################################################   
-simulation_start=min(AllFlights.SimTime) #Start point simulation
+print
+print('********************************* Editing Scenario Finished *********************************')
+
+######################################################################################## 
+
+print('*********************************** Preparing Simulation ************************************')
+# Prepare variables for scenario file
+simulation_start=min(AllFlights.SimTime) # Start point simulation
 time_var=np.arange(simulation_start,simulation_start+24.*3600.,1)
 
-########################################################################################
+# Scenario file for BlueSky
 if len(sys.argv)>1:
-    outputfile=open('scenario/' + str(sys.argv[1]) + '.scn','w') #Specifies output file
+    outputfile=open('scenario/' + str(sys.argv[1]) + '.scn','w') # Specifies output file
 else:
-    outputfile=open('scenario/scenariotest' + '.scn','w') #Specifies output file
+    outputfile=open('scenario/scenariotest' + '.scn','w') # Specifies output file
 
-outputfile.write('### ARSIM SCENARIO FILE ###')
+outputfile.write('#********************************************************************************************* \n')
+outputfile.write('#********************************************************************************************* \n')
+outputfile.write('#************************************ ARSIM SCENARIO FILE ************************************ \n')
+outputfile.write('#********************************************************************************************* \n')
+outputfile.write('#*********************************************************************************************')
 outputfile.write('\n')
 outputfile.write('\n')
 outputfile.write('00:00:0>FF')
@@ -571,17 +651,11 @@ for time in time_var:
             scenario_creator(AllFlights.FlightIdentifier[k])
 outputfile.close()
 
-#########################################################################################
-#
-#
-#
-#
-#########################################################################################
-## I also want a file in which more information about the flights is shown
+# Information file on all flights and parameters
 if len(sys.argv)>1:
-    outputfile2=open('scenario/' + str(sys.argv[1]) + '_flight_information' + '.txt','w') #Specifies output file
+    outputfile2=open('scenario/' + str(sys.argv[1]) + '_flight_information' + '.txt','w') # Specifies output file
 else:
-    outputfile2=open('scenario/flight_information' + '.txt','w') #Specifies output file
+    outputfile2=open('scenario/flight_information' + '.txt','w') # Specifies output file
 
 for k in range(len(AllFlights.CallSign)):
     outputfile2.write(str(AllFlights.CallSign[k]) + \
@@ -663,6 +737,7 @@ for k in range(len(AllFlights.CallSign)):
         ', ' + str(AllFlights.Route_TMA[k].loc[l]) + '\n' )
     outputfile2.write('\n \n \n \n \n')    
     
-outputfile2.close()    
-# ########################################################################################   
-print "Program ready!"
+outputfile2.close()
+
+# Simulation ready
+print('************************************** Simulation Ready *************************************')
