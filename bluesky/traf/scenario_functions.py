@@ -154,8 +154,7 @@ class Route_outside_TMA:
          
         self.dist=[]
         self.heading=[]
-
-            
+		
     def findFlightPathAngle(self):
         for k in range(len(self.waypoints)):        
             if k<(len(self.waypoints)-1):            
@@ -172,7 +171,6 @@ class Route_outside_TMA:
         del self.heading[idx:]
         del self.flpathangle[idx:]
      
-
     def findIAF(self,possible_IAFs):
         for k in range(len(possible_IAFs)):
             if possible_IAFs[k] in self.waypoints:
@@ -182,7 +180,6 @@ class Route_outside_TMA:
                 self.IAF_LAT=self.LAT[idx]
                 self.IAF_LON=self.LON[idx]
         
-    
     def findalmostIAF(self):
         self.almostIAF=self.waypoints[-1]
         self.almostIAF_LAT=self.LAT[-1]
@@ -242,77 +239,8 @@ class Route_outside_TMA:
                 default='AlmostIAF_IAF'
         
             self.loc.append(default)
-
-    def calculate_Speeds(self,nom_climb,nom_cruise_M,nom_cruise_spd,nom_CAS_TOD_almost_IAF,min_climb,min_cruise_M,min_cruise_spd,min_CAS_TOD_almost_IAF): 
-        
-        for j in range(len(self.waypoints)):
-            if j==0:
-                #nominal speed
-                speed=nom_climb #First waypoint: climb speed
-                speed2=mpers2kts(vcas2tasA(kts2mpers(speed),float(self.FL[j])*100.*ft)) #speed in TAS
-                
-                #minimum speed
-                speed3=min_climb
-                speed4=mpers2kts(vcas2tasA(kts2mpers(speed3),float(self.FL[j])*100.*ft)) #speed in TAS
-                
-                
-            elif j<(len(self.waypoints)):
-                if self.phase[j-1]=='Climb':
-                    #nominal speed
-                    speed=nom_climb
-                    speed2=mpers2kts(vcas2tasA(kts2mpers(speed),float(self.FL[j])*100.*ft)) #speed in TAS
-                
-                    #minium speed
-                    speed3=min_climb
-                    speed4=mpers2kts(vcas2tasA(kts2mpers(speed3),float(self.FL[j])*100.*ft)) #speed in TAS
-                    
-                elif self.phase[j-1]=='Cruise' or self.phase[j-1]=='Descent':
-                    
-                    #nominal speed
-                    calculated_cruise_TAS_kts1,calculated_cruise_CAS_kts1=determine_cruise_TAS_CAS(nom_cruise_spd,nom_cruise_M,float(self.FL[j])*100) #h in feet, TAS in kts; Calculate which is the cruise CAS to be inserted, such that neither the CAS nor M is violated
-                    calculated_cruise_TAS_kts2,calculated_cruise_CAS_kts2=determine_cruise_TAS_CAS(nom_cruise_spd,nom_cruise_M,float(self.FL[j-1])*100) #h in feet, TAS in kts; Calculate which is the cruise CAS to be inserted, such that neither the CAS nor M is violated
-                    
-                    if calculated_cruise_TAS_kts1<=calculated_cruise_TAS_kts2:
-                        speed=calculated_cruise_CAS_kts1
-                    elif calculated_cruise_TAS_kts2<calculated_cruise_TAS_kts1:
-                        speed=calculated_cruise_CAS_kts2
-               
-                    speed2=mpers2kts(vcas2tasA(kts2mpers(speed),float(self.FL[j])*100.*ft)) #speed in TAS
-                    
-                    #minimum speed
-                    calculated_cruise_TAS_kts1,calculated_cruise_CAS_kts1=determine_cruise_TAS_CAS(min_cruise_spd,min_cruise_M,float(self.FL[j])*100) #h in feet, TAS in kts; Calculate which is the cruise CAS to be inserted, such that neither the CAS nor M is violated
-                    calculated_cruise_TAS_kts2,calculated_cruise_CAS_kts2=determine_cruise_TAS_CAS(min_cruise_spd,min_cruise_M,float(self.FL[j-1])*100) #h in feet, TAS in kts; Calculate which is the cruise CAS to be inserted, such that neither the CAS nor M is violated
-                    
-                    if calculated_cruise_TAS_kts1<=calculated_cruise_TAS_kts2:
-                        speed3=calculated_cruise_CAS_kts1
-                    elif calculated_cruise_TAS_kts2<calculated_cruise_TAS_kts1:
-                        speed3=calculated_cruise_CAS_kts2
-               
-                    speed4=mpers2kts(vcas2tasA(kts2mpers(speed3),float(self.FL[j])*100.*ft)) #speed in TAS                   
-                    
-                    
-                    #if self.phase[j-1]=='Descent':
-                    if self.phase[j-1]=='Descent' or self.loc[j]=='AlmostIAF_IAF': #Changed 8 feb
-                        
-                        #nominal speed                        
-                        speed=min(speed,nom_CAS_TOD_almost_IAF)
-                        speed2=mpers2kts(vcas2tasA(kts2mpers(speed),float(self.FL[j])*100.*ft)) #speed in TAS 
-                        print('Flight level [j]'+str(speed2))
-                        speed2=mpers2kts(vcas2tasA(kts2mpers(speed),float(self.FL[j-1])*100.*ft)) #speed in TAS 
-                        print('Flight level [j-1]'+str(speed2))
-                        speed2=mpers2kts(vcas2tasA(kts2mpers(speed),float(self.FL[j+1])*100.*ft)) #speed in TAS 
-                        print('Flight level [j+1]'+str(speed2))
-
-                        #minimum speed
-                        speed3=min(speed3,min_CAS_TOD_almost_IAF) 
-                        speed4=mpers2kts(vcas2tasA(kts2mpers(speed3),float(self.FL[j])*100.*ft)) #speed in TAS                        
-
-            self.spd.append(speed)
-            self.spd_TAS.append(speed2)
-            self.minspd.append(speed3)
-            self.minspd_TAS.append(speed4)
 	
-    def calculate_Speeds2(self,nom_climb,nom_cruise_M,nom_cruise_spd,nom_CAS_TOD_almost_IAF,min_climb,min_cruise_M,min_cruise_spd,min_CAS_TOD_almost_IAF): 
+    def calculate_Speeds(self,nom_climb,nom_cruise_M,nom_cruise_spd,nom_CAS_TOD_almost_IAF,min_climb,min_cruise_M,min_cruise_spd,min_CAS_TOD_almost_IAF): 
         for j in range(len(self.waypoints)):
             if j==0:
                 #nominal speed
@@ -323,7 +251,6 @@ class Route_outside_TMA:
                 #minimum speed
                 speed3=min_climb
                 speed4=mpers2kts(vcas2tasA(kts2mpers(speed3),alt)) #speed in TAS
-                
                 
             elif j<(len(self.waypoints)):
                 if self.phase[j-1]=='Climb':
@@ -337,7 +264,6 @@ class Route_outside_TMA:
                     speed4=mpers2kts(vcas2tasA(kts2mpers(speed3),alt)) #speed in TAS
                     
                 elif self.phase[j-1]=='Cruise' or self.phase[j-1]=='Descent':
-                    
                     alt = 0.5*(float(self.FL[j-1])+float(self.FL[j]))*100.*ft
                     #nominal speed
                     calculated_cruise_TAS_kts1,calculated_cruise_CAS_kts1=determine_cruise_TAS_CAS(nom_cruise_spd,nom_cruise_M,float(self.FL[j])*100) #h in feet, TAS in kts; Calculate which is the cruise CAS to be inserted, such that neither the CAS nor M is violated
@@ -361,9 +287,7 @@ class Route_outside_TMA:
                         speed3=calculated_cruise_CAS_kts2
                         speed4=calculated_cruise_TAS_kts2                    
                     
-                    #if self.phase[j-1]=='Descent':
                     if self.phase[j-1]=='Descent' or self.loc[j]=='AlmostIAF_IAF':
-                        
                         #nominal speed                        
                         speed=min(speed,nom_CAS_TOD_almost_IAF)
                         speed2=mpers2kts(vcas2tasA(kts2mpers(speed),alt)) #speed in TAS 
@@ -377,7 +301,6 @@ class Route_outside_TMA:
             self.minspd.append(speed3)
             self.minspd_TAS.append(speed4)
     
-                
     def estimate_flyingtimes(self,TMArouteobject):
         
         #nominal flying times

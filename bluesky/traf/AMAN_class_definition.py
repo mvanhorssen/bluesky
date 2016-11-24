@@ -1,23 +1,14 @@
-#AMAN_class_definition.py
-
-######################################################################  
-#IMPORTANT: DEFINE BASED ON SCENARIO GENERATOR THAT IS BEING USED
-print 
-
-from ScenarioGenerator_revised import AllFlights  
-print 'REVISED'
-
-print 
-######################################################################  
+# AMAN_class_definition.py
 from scenario_functions import *
 from functions_alexander import *
+from ScenarioGenerator_revised import AllFlights # AllFlights contains information on all flights to be simulated
 import numpy as np
 import copy as copy
 from performanceA import *
 import sys
 
 class AMAN(Flights):
-    def __init__(self,AllFlights,unique_runways): # AllFlights contains information on all flights to be simulated
+    def __init__(self,AllFlights,unique_runways):
         self.AllFlights=AllFlights # Modified during simulation
         
         self.Original_AllFlights=copy.deepcopy(AllFlights) # Original dataset used at start of simulation    

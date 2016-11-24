@@ -333,7 +333,7 @@ class Traffic(DynamicArrays):
         i=0 
         while(i<self.ntraf): 
             temp1, temp2 = qdrdist(self.lat[i], self.lon[i], 52.309, 4.764) # Check distance towards EHAM
-            if temp2<1. and self.alt[i]<1.: # If aircraft within 10 nm from airport and below 1 meter, delete it            
+            if temp2<2. and self.alt[i]<1.: # If aircraft within 2 nm from airport and below 1 meter, delete it            
                 self.delete(self.id[i]) 
             i=i+1
             
