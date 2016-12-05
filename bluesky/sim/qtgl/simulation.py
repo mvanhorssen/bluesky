@@ -150,7 +150,7 @@ class Simulation(QObject):
     def start(self):
         if self.ffmode:
             self.syst = int(time.time() * 1000.0)
-        self.ffmode   = False
+        self.ffmode   = True
         self.state    = Simulation.op
 
     def pause(self):
