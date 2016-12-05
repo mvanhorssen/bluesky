@@ -1,7 +1,7 @@
 from math import *
 import numpy as np
 
-from ..tools.loaddata import load_navdata
+from loaddata import load_navdata
 from ..tools import geo
 
 
@@ -30,6 +30,7 @@ class Navdatabase:
         aptype                    : type of airport (1=large, 2=medium, 3=small)
         apmaxrwy                  : max rwy length in meters
         apco                      : country code
+        apelev                      : country code
 
 
     Created by  : Jacco M. Hoekstra (TU Delft)
@@ -48,31 +49,79 @@ class Navdatabase:
         print "Loading global navigation database..."
         wptdata, aptdata, firdata, rwythresholds = load_navdata()
 
-        self.wpid     = wptdata['wpid']  # identifier (string)
-        self.wplat    = wptdata['wplat']  # latitude [deg]
-        self.wplon    = wptdata['wplon']  # longitude [deg]
-        self.wpapt    = wptdata['wpapt']  # reference airport {string}
-        self.wptype   = wptdata['wptype']  # type (string)
-        self.wpco     = wptdata['wpco']  # two char country code (string)
+        self.wpid     = wptdata['wpid']       # identifier (string)
+        self.wplat    = wptdata['wplat']      # latitude [deg]
+        self.wplon    = wptdata['wplon']      # longitude [deg]
+        self.wpapt    = wptdata['wpapt']      # reference airport {string}
+        self.wptype   = wptdata['wptype']     # type (string)
+        self.wpco     = wptdata['wpco']       # two char country code (string)
 
         # Create empty database
         self.aptid     = aptdata['apid']      # 4 char identifier (string)
         self.aptname   = aptdata['apname']    # full name
         self.aptlat    = aptdata['aplat']     # latitude [deg]
         self.aptlon    = aptdata['aplon']     # longitude [deg]
-        self.aptmaxrwy = aptdata['apmaxrwy']  # reference airport {string}
-        self.aptype   = aptdata['aptype']    # type (int, 1=large, 2=medium, 3=small)
+        self.aptmaxrwy = aptdata['apmaxrwy']  # max runway length [m]
+        self.aptype    = aptdata['aptype']    # type (int, 1=large, 2=medium, 3=small)
         self.aptco     = aptdata['apco']      # two char country code (string)
+        self.aptelev   = aptdata['apelev']    # field elevation in meters [m] above mean sea level
 
-        self.fir      = firdata['fir']
-        self.firlat0  = firdata['firlat0']
-        self.firlon0  = firdata['firlon0']
-        self.firlat1  = firdata['firlat1']
-        self.firlon1  = firdata['firlon1']
+        self.fir      = firdata['fir']        # fir name
+        self.firlat0  = firdata['firlat0']    # start lat of a line of border
+        self.firlon0  = firdata['firlon0']    # start lon of a line of border
+        self.firlat1  = firdata['firlat1']    # end lat of a line of border
+        self.firlon1  = firdata['firlon1']    # end lon of a line of border
 
         self.rwythresholds = rwythresholds
 
-    def getwpidx(self, txt, lat=999999., lon=999999):
+
+    def defwpt(self,scr,name=None,lat=None,lon=None,wptype=None,wpapt=None,wpco=None):
+
+        # Prevent polluting the database: check arguments
+        if name==None or name=="":
+            return False,"Insufficient arguments"
+
+        # No data: give info on waypoint            
+        elif lat==None or lon==None:
+            reflat = scr.ctrlat
+            reflon = scr.ctrlon
+            if self.wpid.count(name.upper()) > 0:
+                i = self.getwpidx(name.upper(),reflat,reflon)
+                txt = self.wpid[i]+" : "+str(self.wplat[i])+","+str(self.wplon[i])
+                if len(self.wptype[i]+self.wpco[i])>0: 
+                    txt = txt+"  "+self.wptype[i]+" in "+self.wpco[i]
+                return True,txt
+         
+            # Waypoint name is free  
+            else:
+                return True,"Waypoint "+name.upper()+" does not yet exist."
+        
+        # Still here? So there is data, then we add this waypoint
+        self.wpid.append(name.upper())
+        self.wplat = np.append(self.wplat,lat)
+        self.wplon = np.append(self.wplon,lon)
+ 
+        if wptype == None:
+            self.wptype.append("")
+        else:
+            self.wptype.append(wptype)
+
+        if wpapt == None:
+            self.wpapt.append("")
+        else:
+            self.wpapt.append(wpapt)
+
+        if wpco == None:
+            self.wpco.append("")
+        else:
+            self.wpco.append(wpco)
+            
+        # Update screen info
+        scr.addnavwpt(name.upper(),lat,lon)
+
+        return True,name.upper()+" added to navdb."
+
+    def getwpidx(self, txt, reflat=999999., reflon=999999):
         """Get waypoint index to access data"""
         name = txt.upper()
         try:
@@ -81,7 +130,7 @@ class Navdatabase:
             return -1
 
         # if no pos is specified, get first occurence
-        if not lat < 99999.:
+        if not reflat < 99999.:
             return i
 
         # If pos is specified check for more and return closest
@@ -99,9 +148,9 @@ class Navdatabase:
                 return idx[0]
             else:
                 imin = idx[0]
-                dmin = geo.kwikdist(lat, lon, self.wplat[imin], self.wplon[imin])
+                dmin = geo.kwikdist(reflat, reflon, self.wplat[imin], self.wplon[imin])
                 for i in idx[1:]:
-                    d = geo.kwikdist(lat, lon, self.wplat[i], self.wplon[i])
+                    d = geo.kwikdist(reflat, reflon, self.wplat[i], self.wplon[i])
                     if d < dmin:
                         imin = i
                         dmin = d

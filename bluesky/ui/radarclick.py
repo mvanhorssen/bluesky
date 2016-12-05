@@ -1,5 +1,6 @@
 from math import cos, atan2, radians, degrees
 from numpy import array
+from ..stack.stack import cmdsynon
 
 from ..tools import geo
 from ..tools.misc import findnearest, cmdsplit
@@ -11,34 +12,42 @@ def radarclick(cmdline, lat, lon, traf, navdb, route=None):
     # and when it's the last, also add ENTER
 
     clickcmd = {"": "acid,-",
-                "POS": "acid",
-                "SSD": "acid",
-                "CRE":  "-,-,latlon,-,hdg,-,-",
-                "HDG": "acid,hdg",
-                "SPD": "acid,-",
-                "ALT": "acid,-",
-                "LISTRTE": "acid,-",
                 "ADDWPT": "acid,latlon,-,-,wpinroute,-",
-                "ASAS": "acid,-",
-                "DELWPT": "acid,wpinroute,-",
-                "DEL": "acid,-",
-                "LNAV": "acid,-",
-                "VNAV": "acid,-",
-                "VS": "acid,-",
-                "ND": "acid",
-                "NAVDISP": "acid",
-                "ASAS": "acid,-",
-                "ORIG": "acid,apt",
-                "DEST": "acid,apt",
-                "PAN": "latlon",
-                "MOVE": "acid,latlon,-,-,hdg",
-                "DIST": "latlon,-,latlon",
-                "LINE": "-,latlon,-,latlon",
+                "AFTER": "acid,wpinroute,-",
+                "AT": "acid,wpinroute,-",
+                "ALT": "acid,-",
                 "AREA": "latlon,-,latlon",
+                "ASAS": "acid,-",
                 "BOX": "-,latlon,-,latlon",
+                "CIRCLE": "-,latlon,-,dist",
+                "CRE":  "-,-,latlon,-,hdg,-,-",
+                "DEFWPT": "-,latlon,-",
+                "DEL": "acid,-",
+                "DELWPT": "acid,wpinroute,-",
+                "DELRTE": "acid,-",
+                "DEST": "acid,apt",
+                "DIRECT": "acid,wpinroute",
+                "DIST": "latlon,-,latlon",
+                "DUMPRTE": "acid",
+                "ENG": "acid,-",
+                "HDG": "acid,hdg",
+                "LINE": "-,latlon,-,latlon",
+                "LISTRTE": "acid,-",
+                "LNAV": "acid,-",
+                "MOVE": "acid,latlon,-,-,hdg",
+                "NAVDISP": "acid",
+                "NOM": "acid",
+                "ND": "acid",
+                "ORIG": "acid,apt",
+                "PAN": "latlon",
                 "POLY": "-,latlon,...",
                 "POLYGON": "-,latlon,...",
-                "CIRCLE": "-,latlon,-,dist"
+                "POS": "acid",
+                "SSD": "acid",
+                "SPD": "acid,-",
+                "TRAIL":"acid,-",
+                "VNAV": "acid,-",
+                "VS": "acid,-"
                 }
 
     # Default values, when nothing is found to be added based on click
@@ -58,6 +67,11 @@ def radarclick(cmdline, lat, lon, traf, navdb, route=None):
 
     # Insert: nearest aircraft id
     else:
+        
+        # Check for synonyms (dictionary is imported from stack)
+        if cmd in cmdsynon:
+           cmd = cmdsynon[cmd]
+
         # Try to find command in clickcmd dictionary
         try:
             lookup = clickcmd[cmd]
@@ -69,7 +83,7 @@ def radarclick(cmdline, lat, lon, traf, navdb, route=None):
 
         # For valid value, insert relevant dat on edit line
         if lookup:
-            if len(cmdline) > 0 and cmdline[-1] != " ":
+            if len(cmdline) > 0 and (cmdline[-1] != " " and cmdline[-1]!=","):
                 todisplay = " "
 
             # Determine argument click type
@@ -120,7 +134,7 @@ def radarclick(cmdline, lat, lon, traf, navdb, route=None):
                                         array(route.wplat),
                                         array(route.wplon))
                             if iwp >= 0:
-                                todisplay += route.wpname[iwp]
+                                todisplay += route.wpname[iwp]+" "
 
                     else:
                         synerr = True
