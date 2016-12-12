@@ -277,8 +277,7 @@ class AMAN(Flights):
         del counter
     
     def update_TP(self,BS_CallSign,BS_LAT,BS_LON,BS_TAS,BS_LAT_nextwpt,BS_LON_nextwpt,BS_simtime): # Provided by BlueSky traffic: Aircraft CallSign/CurrentLAT,CurrentLON/ACTWPT
-        #Calculates both with current flight plan (i.e. active in BlueSky), as well as if the aircraft would fly (or start flying) at the minimum/maximum speed over each leg
-    
+        # Calculates both with current flight plan (i.e. active in BlueSky), as well as if the aircraft would fly (or start flying) at the minimum/maximum speed over each leg
         simt=BS_simtime 
         counter=0      
                    
@@ -1035,7 +1034,7 @@ class AMAN(Flights):
             idx=self.AllFlights.CallSign.index(BS_CallSign[k]) # Find index of element for AMAN module
             
             if self.AMANhor_sw[idx]=='ON' and self.AllFlights.Route_outside_TMA[idx].whichRWY==RWY:   
-                ETAs.append(self.CurrEstTime_at_RWY[idx])
+                ETAs.append(self.CurrSchTime_at_RWY[idx])
                 list_index.append(idx)
             
         if len(ETAs)>0:        
@@ -1292,43 +1291,6 @@ class AMAN(Flights):
             
             self.EnergyCost[idx]=self.EnergyCost[idx]+max(0,tempor)
             del tempor
-                
-    def continuous_turn_avoider(self,BS_CallSign,BS_route,BS_ActWptLAT,BS_ActWptLON,BS_traf_object,simtime):
-        for k in range(len(BS_CallSign)): # Callsign is array from BlueSky traffic, implies that aircraft is airborne
-            idx=self.AllFlights.CallSign.index(BS_CallSign[k]) # Find index of element for AMAN module
-            
-            if self.CurrDirectDist_to_APT[idx]>40. or self.CurrLoc[idx]=='TMA': # Only do this when still outside TMA, otherwise there might be problems (infinite holding)
-                distance_next_wpt=qdrdistA(self.CurrLAT[idx],self.CurrLON[idx],BS_ActWptLAT[k],BS_ActWptLON[k])
-             
-                # Options: 
-				# 1) last possible time not established yet, but it is time to do so
-                if self.turnavoid_lastposstime_nextwpt[idx]<0 and distance_next_wpt<3.:
-                    # Set last possible time
-                    self.turnavoid_lastposstime_nextwpt[idx]=simtime+distance_next_wpt/self.CurrTAS[idx]*3600+15. # Implies that maximum of 60s over 3 nm (TAS=180 kts)
-                    self.turnavoid_LAT_used[idx]=self.Next_wpt_LAT[idx]
-                    self.turnavoid_LON_used[idx]=self.Next_wpt_LON[idx]
-                    
-                #2) Aircraft has passed waypoint and next waypoint is active
-                if qdrdistA(BS_ActWptLAT[k],BS_ActWptLON[k],self.turnavoid_LAT_used[idx],self.turnavoid_LON_used[idx])>0.3: # New waypoint is active
-                    self.turnavoid_lastposstime_nextwpt[idx]=-1.
-                    self.turnavoid_LAT_used[idx]=-999.
-                    self.turnavoid_LON_used[idx]=-999.
-                    
-                #3) Aircraft keeps turning
-                if simtime> self.turnavoid_lastposstime_nextwpt[idx] and self.turnavoid_lastposstime_nextwpt[idx]>0 and qdrdistA(BS_ActWptLAT[k],BS_ActWptLON[k],self.turnavoid_LAT_used[idx],self.turnavoid_LON_used[idx])<=0.3:
-                    
-                    self.turnavoid_idx_used[idx]=int(BS_route[k].iactwp)
-                    tempor=int(self.turnavoid_idx_used[idx]+1)
-                    nextwpname_temp=BS_route[k].wpname[tempor] # Find name of next waypoint in BS_route object
-                    BS_route[k].direct(BS_traf_object,k,nextwpname_temp) # Direct to next wpt
-                    del nextwpname_temp,tempor
-          
-                    BS_route[k].calcfp()
-                    
-                    # Re-initialise parameters                
-                    self.turnavoid_lastposstime_nextwpt[idx]=-1.
-                    self.turnavoid_LAT_used[idx]=-999.
-                    self.turnavoid_LON_used[idx]=-999.
                 
     def scheduler_ASAP_upgrade(self,BS_CallSign,AMAN_horizon,RWY,intarrtime_RWY,STA_Freeze_horizon,unique_runways): 
         # First check: are there 'new' aircraft?

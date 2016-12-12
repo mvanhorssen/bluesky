@@ -5,6 +5,7 @@ except ImportError:
     # Else PyQt4 imports
     from PyQt4.QtCore import QThread, QObject
 import time
+import sys
 
 # Local imports
 from screenio import ScreenIO
@@ -78,6 +79,11 @@ class Simulation(QObject):
     def doWork(self):
         self.syst  = int(time.time() * 1000.0)
         self.fixdt = self.simdt
+		
+        if len(sys.argv) > 3:
+			stack.openfile(str(sys.argv[1]) + '.scn')
+        else:
+			stack.openfile('scenariotest.scn')
 
         while self.running:
             # Datalog pre-update (communicate current sim time to loggers)
@@ -150,7 +156,7 @@ class Simulation(QObject):
     def start(self):
         if self.ffmode:
             self.syst = int(time.time() * 1000.0)
-        self.ffmode   = True
+        self.ffmode   = True # Always run in fastforward mode
         self.state    = Simulation.op
 
     def pause(self):

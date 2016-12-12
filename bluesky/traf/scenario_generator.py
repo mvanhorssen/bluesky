@@ -1,7 +1,7 @@
 # scenario_generator.py
+from ..settings import data_path
 from scenario_functions import *
 from performanceA import *
-from Tkinter import *
 import random
 import sys
 
@@ -46,75 +46,80 @@ def scenario_creator(FlightID): #AllFlights.SimTime[idx]-simulation_start
     
 #####################################################################################  
 
-def print_text():
-	print('Name: %s' % E_Name.get())
-	print('Dataset: %s' % E_Dataset.get())
-	print('Approach margin: %s' % E_approach_margin.get())
-	print('Popup Scaling: %s' % E_popup_scaling.get())
-	print('Arrival Manager: %s' % var_AMAN)
-	print('Trajectory Predictor: %s' % TP_var.get())
-	print('Pre-departure Delay: %s' % E_predep_delay.get())
-	filename = E_Dataset.get()
-	approach_margin = float(E_approach_margin.get())
-	master_quit()
+popup_window = False
 
-def select_AMAN():
-	if AMAN_var.get() == 0:
-		var_AMAN = 'ASAP BASIC'
+if popup_window is True:
+	from Tkinter import *
+	
+	def print_text():
+		print('Name: %s' % E_Name.get())
+		print('Dataset: %s' % E_Dataset.get())
+		print('Approach margin: %s' % E_approach_margin.get())
+		print('Popup Scaling: %s' % E_popup_scaling.get())
+		print('Arrival Manager: %s' % var_AMAN)
+		print('Trajectory Predictor: %s' % TP_var.get())
+		print('Pre-departure Delay: %s' % E_predep_delay.get())
+		filename = E_Dataset.get()
+		approach_margin = float(E_approach_margin.get())
+		master_quit()
 
-def master_quit():
-	master.destroy()
+	def select_AMAN():
+		if AMAN_var.get() == 0:
+			var_AMAN = 'ASAP BASIC'
 
-master = Tk()
-master.wm_title('Initialize AMAN variables')
-# Name Entry
-Label(master, text="Name").grid(row=0)
-E_Name = Entry(master)
-E_Name.insert(10, 'Name')
-E_Name.grid(row=0,column=1)
-# Dataset Entry
-Label(master, text="Dataset").grid(row=1)
-E_Dataset = Entry(master)
-E_Dataset.insert(10, 'Dataset1')
-E_Dataset.grid(row=1,column=1)
-# Approach Margin Entry
-Label(master, text="Approach Margin [sec]").grid(row=2)
-E_approach_margin = Entry(master)
-E_approach_margin.insert(10, '30')
-E_approach_margin.grid(row=2,column=1)
-# Popup Scaling Entry
-Label(master, text="Popup Scaling [%]").grid(row=3)
-E_popup_scaling = Entry(master)
-E_popup_scaling.insert(10, '100')
-E_popup_scaling.grid(row=3,column=1)
-# Arrival Manager Entry
-Label(master, text="Arrival Manager").grid(row=4)
-AMAN_var = IntVar()
-E_AMAN = Radiobutton(master, text='AMAN', variable = AMAN_var, value=0, command=select_AMAN)
-E_AMAN.grid(row=4,column=1)
-E_EAMAN = Radiobutton(master, text='E-AMAN', variable = AMAN_var, value=1)
-E_EAMAN.grid(row=4,column=2)
-E_XMAN = Radiobutton(master, text='XMAN', variable = AMAN_var, value=2)
-E_XMAN.grid(row=4,column=3)
-# Trajectory Predictor Entry
-Label(master, text="Trajectory Predictor").grid(row=5)
-TP_var = IntVar()
-E_TP_ASAPBASIC = Radiobutton(master, text='ASAP BASIC', variable = TP_var, value=0)
-E_TP_ASAPBASIC.grid(row=5,column=1)
-E_TP_DYNAMIC = Radiobutton(master, text='DYNAMIC', variable = TP_var, value=1)
-E_TP_DYNAMIC.grid(row=5,column=2)
-E_TP_ASAPUPGRADE = Radiobutton(master, text='ASAP UPGRADE', variable = TP_var, value=2)
-E_TP_ASAPUPGRADE.grid(row=5,column=3)
-# Pre-departure Delay Entry
-Label(master, text="Pre-departure Delay [sec]").grid(row=6)
-E_predep_delay = Entry(master)
-E_predep_delay.insert(10, '0')
-E_predep_delay.grid(row=6,column=1)
+	def master_quit():
+		master.destroy()
+	
+	master = Tk()
+	master.wm_title('Initialize AMAN variables')
+	# Name Entry
+	Label(master, text="Name").grid(row=0)
+	E_Name = Entry(master)
+	E_Name.insert(10, 'Name')
+	E_Name.grid(row=0,column=1)
+	# Dataset Entry
+	Label(master, text="Dataset").grid(row=1)
+	E_Dataset = Entry(master)
+	E_Dataset.insert(10, 'Dataset1')
+	E_Dataset.grid(row=1,column=1)
+	# Approach Margin Entry
+	Label(master, text="Approach Margin [sec]").grid(row=2)
+	E_approach_margin = Entry(master)
+	E_approach_margin.insert(10, '30')
+	E_approach_margin.grid(row=2,column=1)
+	# Popup Scaling Entry
+	Label(master, text="Popup Scaling [%]").grid(row=3)
+	E_popup_scaling = Entry(master)
+	E_popup_scaling.insert(10, '100')
+	E_popup_scaling.grid(row=3,column=1)
+	# Arrival Manager Entry
+	Label(master, text="Arrival Manager").grid(row=4)
+	AMAN_var = IntVar()
+	E_AMAN = Radiobutton(master, text='AMAN', variable = AMAN_var, value=0, command=select_AMAN)
+	E_AMAN.grid(row=4,column=1)
+	E_EAMAN = Radiobutton(master, text='E-AMAN', variable = AMAN_var, value=1)
+	E_EAMAN.grid(row=4,column=2)
+	E_XMAN = Radiobutton(master, text='XMAN', variable = AMAN_var, value=2)
+	E_XMAN.grid(row=4,column=3)
+	# Trajectory Predictor Entry
+	Label(master, text="Trajectory Predictor").grid(row=5)
+	TP_var = IntVar()
+	E_TP_ASAPBASIC = Radiobutton(master, text='ASAP BASIC', variable = TP_var, value=0)
+	E_TP_ASAPBASIC.grid(row=5,column=1)
+	E_TP_DYNAMIC = Radiobutton(master, text='DYNAMIC', variable = TP_var, value=1)
+	E_TP_DYNAMIC.grid(row=5,column=2)
+	E_TP_ASAPUPGRADE = Radiobutton(master, text='ASAP UPGRADE', variable = TP_var, value=2)
+	E_TP_ASAPUPGRADE.grid(row=5,column=3)
+	# Pre-departure Delay Entry
+	Label(master, text="Pre-departure Delay [sec]").grid(row=6)
+	E_predep_delay = Entry(master)
+	E_predep_delay.insert(10, '0')
+	E_predep_delay.grid(row=6,column=1)
 
-Button(master, text='Quit', command=master_quit).grid(row=8,column=0)
-Button(master, text='Run', command=print_text).grid(row=8,column=1)
+	Button(master, text='Quit', command=master_quit).grid(row=8,column=0)
+	Button(master, text='Run', command=print_text).grid(row=8,column=1)
 
-master.mainloop()
+	master.mainloop()
 
 print
 print('*********************************************************************************************')
@@ -284,6 +289,10 @@ allrunways_opposite=['36R','36C','36L','18R','18C','18L','27','09','24','06','22
 ######################################################################################## 
 
 print('************************************ Generating Scenario ************************************')
+print('Planning Horizon [NM]: '+str(AMAN_horizon))
+print('Active Advisory Horizon [NM]: '+str(SARA_horizon))
+print('Maximum Flight Plan Distance [NM]: '+str(max_flpl_dist))
+print('Pop-up Scaling [%]: '+str(popup_scaling*100))
 
 A=open(filename,'r')
 lines=A.readlines()
@@ -317,7 +326,7 @@ lines2=B.readlines()
 B.close()
 del lines2[0] # Necessary to remove header
 
-C=open('airports.dat','r')
+C=open(data_path+'/global/airports.dat','r')
 lines3=C.readlines()
 C.close()
 del lines3[0] # Necessary to remove header
@@ -426,7 +435,10 @@ for j in range(len(AllFlights.Route_outside_TMA)): # Find IAF used and set route
 totflights=len(AllFlights.CallSign)
 popupflights=AllFlights.PopupLabel.count('POPUP')
 popupratio=float(popupflights)/float(totflights)
-print 'ORIGINAL POPUP: ',popupflights,'  TOT: ', totflights,'  RATIO [%]: ',100*popupratio
+print
+print('Original Pop-up Flights: '+str(popupflights))
+print('Original Total Flights: '+str(totflights))
+print('Original Pop-up Ratio [%]: '+str(100*popupratio))
 
 # Secondly, edit the scenario. 
 print
@@ -460,7 +472,7 @@ for j in range(len(AllFlights.Route_outside_TMA)):
             if z>(len(AllFlights.Route_outside_TMA)-1):
                 z=0
                 
-print 'Replaced flights: ',counter_replaced_longhaul
+print 'Replaced Flights (Longhaul > Normal): ',counter_replaced_longhaul
       
 # Add pop-up flights if necessary (replace normal flights, add pop-up flights)
 if popup_scaling>1:
@@ -540,7 +552,7 @@ if popup_scaling>1:
         AllFlights.replace_flight(indexes_tobereplaced_final[z],indexes_replacements_final[z],'POP'+str(counter_replaced_extrapopup))
         counter_replaced_extrapopup=counter_replaced_extrapopup+1
     
-    print 'Replaced (normal>popup): ',counter_replaced_extrapopup
+    print 'Replaced Flights (Normal > Pop-up): ',counter_replaced_extrapopup
 
     del element
  
@@ -606,7 +618,7 @@ if popup_scaling<1:
         AllFlights.replace_flight(indexes_tobereplaced_final[z],indexes_replacements_final[z],'NOR'+str(counter_replaced_extranormal))
         counter_replaced_extranormal=counter_replaced_extranormal+1
     
-    print 'Replaced (popup>normal): ',counter_replaced_extranormal
+    print 'Replaced Flights (Pop-up > Normal): ',counter_replaced_extranormal
 
     del element
 
@@ -614,7 +626,9 @@ if popup_scaling<1:
 totflights=len(AllFlights.CallSign)
 popupflights=AllFlights.PopupLabel.count('POPUP')
 popupratio=float(popupflights)/float(totflights)
-print '(REVISED) POPUP: ',popupflights,'  TOT: ', totflights,'  RATIO [%]: ',100*popupratio
+print('Revised Pop-up Flights: '+str(popupflights))
+print('Revised Total Flights: '+str(totflights))
+print('Revised Pop-up Ratio [%]: '+str(100*popupratio))
 
 print
 print('********************************* Editing Scenario Finished *********************************')
