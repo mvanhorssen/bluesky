@@ -338,7 +338,7 @@ class Traffic(DynamicArrays):
             if temp2<2. and self.alt[i]<1.: # If aircraft within 2 nm from airport and below 1 meter, delete it            
                 self.delete(self.id[i]) 
             i=i+1
-            
+		
 		# Calculate energy cost per flight
         self.AMAN.calculate_energy_cost(self.id,self.vs,self.tas,CD_0,CD_2,self.rho,WingSurface,self.hdg,self.trk,mass_nominal,simdt)
         
@@ -351,13 +351,13 @@ class Traffic(DynamicArrays):
             self.AMAN.update_TP(self.id,self.lat,self.lon,self.tas/kts,self.actwp.lat,self.actwp.lon,simt)
             
 			# Update schedule per runway
-            for rwy in unique_runways:      
-                if len(sys.argv)>5:
-                    if sys.argv[5]=='ASAPBASIC':
+            for rwy in unique_runways:     
+                if '--node' in sys.argv:
+                    if var_TP==str('ASAPBASIC'):
                         self.AMAN.scheduler_ASAP_basic(self.id,Take_into_account_schedule_horizon,rwy,intarrtime_AMAN_runway,Freeze_horizon,unique_runways)
-                    elif sys.argv[5]=='DYNAMIC':
+                    elif var_TP==str('DYNAMIC'):
                         self.AMAN.scheduler_dynamic(self.id,Take_into_account_schedule_horizon,rwy,intarrtime_AMAN_runway)
-                    elif sys.argv[5]=='ASAPUPGRADE':
+                    elif var_TP==str('ASAPUPGRADE'):
                         self.AMAN.scheduler_ASAP_upgrade(self.id,Take_into_account_schedule_horizon,rwy,intarrtime_AMAN_runway,Freeze_horizon,unique_runways)
                 else:                       
 					self.AMAN.scheduler_ASAP_basic(self.id,Take_into_account_schedule_horizon,rwy,intarrtime_AMAN_runway,Freeze_horizon,unique_runways)                    

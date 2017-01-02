@@ -11,12 +11,14 @@ def save_to_file(sim):
     
     print('Saving to file')
 	
-    if len(sys.argv)>1:
-        fnametempor=str(sys.argv[1])
+    if '--node' in sys.argv:
+		var_txt = open('variables.txt','r')
+		var_name = str(var_txt.readline()).rstrip()
+		var_txt.close()
     else:
-        fnametempor='test_sample'    
+        var_name='test_sample'    
            
-    with open(fnametempor+'.pkl','wb') as output:
+    with open(var_name+'.pkl','wb') as output:
         pickle.dump(sys.argv,output,-1)
         pickle.dump(sim.traf.AMAN.AllFlights.CallSign,output,-1)
         pickle.dump(sim.traf.AMAN.AllFlights.PreDepEstTime_at_RWY,output,-1)
@@ -61,8 +63,11 @@ def save_to_file(sim):
         pickle.dump(sim.traf.AMAN.LOG_time_CBAS_passed,output,-1)
         pickle.dump(sim.traf.AMAN.LOG_time_at_CBAS,output,-1)
         pickle.dump(sim.traf.AMAN.LOG_accuracy_predepest_at_CBAS,output,-1)
- 
-    del fnametempor
+		
+        pickle.dump(sim.traf.AMAN.LOG_speed_changes_before_TOD_per_1_kts,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_speed_changes_after_TOD_per_1_kts,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_speed_changes_before_TOD_per_5_kts,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_speed_changes_after_TOD_per_5_kts,output,-1)
     
 #import matplotlib.pyplot as plt 
 #

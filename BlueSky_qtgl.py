@@ -1,6 +1,5 @@
 import sys
 import traceback
-from Scenario_Pre_Analyser import * #(logger)
 from bluesky import settings
 
 if __name__ == "__main__":

@@ -19,6 +19,7 @@ from ... import settings
 from ...tools.datafeed import Modesbeast
 from ...tools import datalog, areafilter
 from ...tools.misc import txt2tim, tim2txt
+from ...traf.scenario_generator import var_name
 
 onedayinsec = 24 * 3600  # [s] time of one day in seconds for clock time
 
@@ -80,12 +81,17 @@ class Simulation(QObject):
         self.syst  = int(time.time() * 1000.0)
         self.fixdt = self.simdt
 		
-        if len(sys.argv) > 3:
-			stack.openfile(str(sys.argv[1]) + '.scn')
+		# Open scenario file automatically
+        if '--node' in sys.argv:
+			stack.openfile(str(var_name)+'.scn')
         else:
 			stack.openfile('scenariotest.scn')
 
         while self.running:
+			# Stop simulation automatically
+            if self.simt > 50E3:
+				self.stop()
+				
             # Datalog pre-update (communicate current sim time to loggers)
             datalog.preupdate(self.simt)
 

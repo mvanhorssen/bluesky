@@ -12,7 +12,7 @@ if len(sys.argv)>2:
 else:
     fnametempor='214scenario2c12' #Specify file (without .pkl extension) to be read  
 
-fnametempor='sample_with_CBAS_predepest' 
+fnametempor='XMAN450test' 
     
 with open(fnametempor+'.pkl','rb') as input:
     
@@ -63,6 +63,11 @@ with open(fnametempor+'.pkl','rb') as input:
         LOG_times_at_CBAS=list(pickle.load(input))
         LOG_accuracies_predepests_at_CBAS=list(pickle.load(input))
 		
+        LOG_speed_changes_before_TOD_per_1_kts=list(pickle.load(input))
+        LOG_speed_changes_after_TOD_per_1_kts=list(pickle.load(input))
+        LOG_speed_changes_before_TOD_per_5_kts=list(pickle.load(input))
+        LOG_speed_changes_after_TOD_per_5_kts=list(pickle.load(input))
+		
         #
       
 #First print some numbers
@@ -91,17 +96,18 @@ average_dogleg=np.mean(dogleg_delays)
 average_twosem=np.mean(twosem_delays)
 average_holding=np.mean(holding_delays)
 
+print
+print 'Average amount of speed changes before TOD per 1 kts: ',np.mean(LOG_speed_changes_before_TOD_per_1_kts), np.max(LOG_speed_changes_before_TOD_per_1_kts)
+print 'Average amount of speed changes after TOD per 1 kts: ',np.mean(LOG_speed_changes_after_TOD_per_1_kts), np.max(LOG_speed_changes_after_TOD_per_1_kts)
+print 'Average amount of speed changes before TOD per 5 kts: ',np.mean(LOG_speed_changes_before_TOD_per_5_kts), np.max(LOG_speed_changes_before_TOD_per_5_kts)
+print 'Average amount of speed changes after TOD per 5 kts: ',np.mean(LOG_speed_changes_after_TOD_per_5_kts), np.max(LOG_speed_changes_after_TOD_per_5_kts)
+
 print 
 print 'Average low-level del. abs. [s]: ',np.mean(LOG_lowlevel_delabs_times)
 print 'None [ac]: ',LOG_lowlevel_delabs_types.count('None')
 print 'Dog [ac/s]: ',LOG_lowlevel_delabs_types.count('DogLeg'),' ',average_dogleg
 print 'TwoSem [ac/s]: ',LOG_lowlevel_delabs_types.count('TwoSemicircles'),' ',average_twosem
 print 'Stack [ac/s]: ',LOG_lowlevel_delabs_types.count('HoldingStack'),' ',average_holding
-
-#ATTENTION! REMOVE LAST AIRCRAFT AS IT WAS DELETED
-#Check that only 1 aircraft left
-print
-print 'Should be 1: ', LOG_RWYs_passed.count(0)
 
 #Additional check: last STA for both runways
 runway1_lastSTAs=[]

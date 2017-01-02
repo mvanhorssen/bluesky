@@ -56,16 +56,36 @@ if popup_window is True:
 		print('Dataset: %s' % E_Dataset.get())
 		print('Approach margin: %s' % E_approach_margin.get())
 		print('Popup Scaling: %s' % E_popup_scaling.get())
-		print('Arrival Manager: %s' % var_AMAN)
-		print('Trajectory Predictor: %s' % TP_var.get())
+		print('Arrival Manager: %s' % select_AMAN())
+		print('Trajectory Predictor: %s' % select_TP())
 		print('Pre-departure Delay: %s' % E_predep_delay.get())
 		filename = E_Dataset.get()
 		approach_margin = float(E_approach_margin.get())
+		popup_scaling = float(E_popup_scaling.get())
+		var_AMAN = select_AMAN()
+		var_TP = select_TP()
+		pre_departure_delay = float(E_predep_delay.get())
 		master_quit()
 
 	def select_AMAN():
+		var_AMAN = ''
 		if AMAN_var.get() == 0:
-			var_AMAN = 'ASAP BASIC'
+			var_AMAN = 'AMAN'
+		if AMAN_var.get() == 1:
+			var_AMAN = 'EAMAN'
+		if AMAN_var.get() == 2:
+			var_AMAN = 'XMAN'
+		return var_AMAN
+	
+	def select_TP():
+		var_TP = ''
+		if TP_var.get() == 0:
+			var_TP = 'ASAPBASIC'
+		if TP_var.get() == 1:
+			var_TP = 'DYNAMIC'
+		if TP_var.get() == 2:
+			var_TP = 'ASAPUPGRADE'
+		return var_TP
 
 	def master_quit():
 		master.destroy()
@@ -97,9 +117,9 @@ if popup_window is True:
 	AMAN_var = IntVar()
 	E_AMAN = Radiobutton(master, text='AMAN', variable = AMAN_var, value=0, command=select_AMAN)
 	E_AMAN.grid(row=4,column=1)
-	E_EAMAN = Radiobutton(master, text='E-AMAN', variable = AMAN_var, value=1)
+	E_EAMAN = Radiobutton(master, text='E-AMAN', variable = AMAN_var, value=1, command=select_AMAN)
 	E_EAMAN.grid(row=4,column=2)
-	E_XMAN = Radiobutton(master, text='XMAN', variable = AMAN_var, value=2)
+	E_XMAN = Radiobutton(master, text='XMAN', variable = AMAN_var, value=2, command=select_AMAN)
 	E_XMAN.grid(row=4,column=3)
 	# Trajectory Predictor Entry
 	Label(master, text="Trajectory Predictor").grid(row=5)
@@ -120,7 +140,7 @@ if popup_window is True:
 	Button(master, text='Run', command=print_text).grid(row=8,column=1)
 
 	master.mainloop()
-
+	
 print
 print('*********************************************************************************************')
 print('*********************************************************************************************')
@@ -129,78 +149,101 @@ print('*************************************************************************
 print('*********************************************************************************************')
 print
 
-#print(str(sys.argv))
-if len(sys.argv)>3:
-    if sys.argv[2]=='Dataset1':
+if len(sys.argv)>2:
+	var_name = ''
+	var_txt = open('variables.txt','w')
+	var_txt.write(sys.argv[1]+'\n') # Name
+	var_txt.write(sys.argv[2]+'\n') # Dataset
+	var_txt.write(sys.argv[3]+'\n') # popup_scaling
+	var_txt.write(sys.argv[4]+'\n') # AMAN
+	var_txt.write(sys.argv[5]+'\n') # Trajectory Predictor
+	var_txt.write(sys.argv[6]+'\n') # Pre-departure delay
+	var_txt.write(sys.argv[7]+'\n') # Approach margin
+	var_txt.close()
+	var_predeparture_delay = float(sys.argv[6])
+
+if '--node' in sys.argv:
+	var_txt = open('variables.txt','r')
+	var_name = str(var_txt.readline()).rstrip()
+	var_dataset = str(var_txt.readline()).rstrip()
+	var_popup_scaling = float(var_txt.readline())
+	var_AMAN = str(var_txt.readline()).rstrip()
+	var_TP = str(var_txt.readline()).rstrip()
+	var_predeparture_delay = float(var_txt.readline())
+	var_approach_margin = float(var_txt.readline())
+	var_txt.close()
+	
+if '--node' in sys.argv:
+    if var_dataset==str('Dataset1'):
         filename='20150707Regulated58UTC.so6'
         
-    elif sys.argv[2]=='Dataset2':
+    elif var_dataset==str('Dataset2'):
         filename='20150707Regulated1619UTC.so6'
 
-    elif sys.argv[2]=='Dataset3':
+    elif var_dataset==str('Dataset3'):
         filename='20150716Regulated58UTC.so6'
 
-    elif sys.argv[2]=='Dataset4':
+    elif var_dataset==str('Dataset4'):
         filename='20150716Regulated1619UTC.so6'
                 
-    elif sys.argv[2]=='Dataset5':
+    elif var_dataset==str('Dataset5'):
         filename='20150807Regulated58UTC.so6'
                 
-    elif sys.argv[2]=='Dataset6':
+    elif var_dataset==str('Dataset6'):
         filename='20150807Regulated1619UTC.so6'
                 
-    elif sys.argv[2]=='Dataset7':
+    elif var_dataset==str('Dataset7'):
         filename='20150812Regulated58UTC.so6'
                 
-    elif sys.argv[2]=='Dataset8':
+    elif var_dataset==str('Dataset8'):
         filename='20150812Regulated1619UTC.so6'
             
-    elif sys.argv[2]=='Dataset9':
+    elif var_dataset==str('Dataset9'):
         filename='20150901Regulated58UTC.so6'
         
-    elif sys.argv[2]=='Dataset10':
+    elif var_dataset==str('Dataset10'):
         filename='20150901Regulated1619UTC.so6'        
         
-    elif sys.argv[2]=='Dataset11':
+    elif var_dataset==str('Dataset11'):
         filename='20150914Regulated58UTC.so6'
         
-    elif sys.argv[2]=='Dataset12':
+    elif var_dataset==str('Dataset12'):
         filename='20150914Regulated1619UTC.so6'        
         
-    elif sys.argv[2]=='Dataset21':
+    elif var_dataset==str('Dataset21'):
         filename='20150707Regulated1013UTC.so6'       
 
-    elif sys.argv[2]=='Dataset22':
+    elif var_dataset==str('Dataset22'):
         filename='20150707Regulated1316UTC.so6'
 
-    elif sys.argv[2]=='Dataset23':
+    elif var_dataset==str('Dataset23'):
         filename='20150716Regulated1013UTC.so6'        
 
-    elif sys.argv[2]=='Dataset24':
+    elif var_dataset==str('Dataset24'):
         filename='20150716Regulated1316UTC.so6'    
 
-    elif sys.argv[2]=='Dataset25':
+    elif var_dataset==str('Dataset25'):
         filename='20150807Regulated1013UTC.so6'
 
-    elif sys.argv[2]=='Dataset26':
+    elif var_dataset==str('Dataset26'):
         filename='20150807Regulated1316UTC.so6'        
 
-    elif sys.argv[2]=='Dataset27':
+    elif var_dataset==str('Dataset27'):
         filename='20150812Regulated1013UTC.so6'
 
-    elif sys.argv[2]=='Dataset28':
+    elif var_dataset==str('Dataset28'):
         filename='20150812Regulated1316UTC.so6'
 
-    elif sys.argv[2]=='Dataset29':
+    elif var_dataset==str('Dataset29'):
         filename='20150901Regulated1013UTC.so6'
 
-    elif sys.argv[2]=='Dataset30':
+    elif var_dataset==str('Dataset30'):
         filename='20150901Regulated1316UTC.so6'
 
-    elif sys.argv[2]=='Dataset31':
+    elif var_dataset==str('Dataset31'):
         filename='20150914Regulated1013UTC.so6'
 
-    elif sys.argv[2]=='Dataset32':
+    elif var_dataset==str('Dataset32'):
         filename='20150914Regulated1316UTC.so6'
            
 else:
@@ -208,13 +251,13 @@ else:
 
 intarrtime_AMAN_runway=100. # Specifies the inter-arrival time for each runway
 
-if len(sys.argv)>7:
-    approach_margin = float(sys.argv[7])
+if '--node' in sys.argv:
+    approach_margin = float(var_approach_margin)
 else:
     approach_margin = 30. # Approach margin [seconds]
 
-if len(sys.argv)>4:
-    if str(sys.argv[4])=='AMAN':
+if '--node' in sys.argv:
+    if str(var_AMAN)=='AMAN':
         print
         print 'AMAN'
         print
@@ -222,7 +265,7 @@ if len(sys.argv)>4:
         SARA_horizon=100. # [nm]; Active Advisory Horizon
         Take_into_account_schedule_horizon=250. # [nm]; From this horizon, aircraft are used for scheduling
         Freeze_horizon=120. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon       
-    elif str(sys.argv[4])=='EAMAN':   
+    elif var_AMAN=='EAMAN':   
         print
         print 'E-AMAN'
         print
@@ -230,7 +273,7 @@ if len(sys.argv)>4:
         SARA_horizon=180. # [nm]; Active Advisory Horizon
         Take_into_account_schedule_horizon=300. # [nm]; From this horizon, aircraft are used for scheduling
         Freeze_horizon=200. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon
-    elif str(sys.argv[4])=='XMAN250':   
+    elif str(var_AMAN)=='XMAN250':   
         print
         print 'XMAN 250'
         print
@@ -238,7 +281,7 @@ if len(sys.argv)>4:
         SARA_horizon=230. # [nm]; Active Advisory Horizon
         Take_into_account_schedule_horizon=300. # [nm]; From this horizon, aircraft are used for scheduling
         Freeze_horizon=250. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon
-    elif str(sys.argv[4])=='XMAN350':   
+    elif str(var_AMAN)=='XMAN350':   
         print
         print 'XMAN 350'
         print
@@ -246,7 +289,7 @@ if len(sys.argv)>4:
         SARA_horizon=330. # [nm]; Active Advisory Horizon
         Take_into_account_schedule_horizon=400. # [nm]; From this horizon, aircraft are used for scheduling
         Freeze_horizon=350. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon
-    elif str(sys.argv[4])=='XMAN450':   
+    elif str(var_AMAN)=='XMAN450':   
         print
         print 'XMAN 450'
         print
@@ -264,8 +307,8 @@ else:
 # Scenario editing
 max_flpl_dist=700. # [nm]; flights with a flight plan distance larger than this value are replaced with a NORMAL flight (i.e. not a pop-up flight)
 
-if len(sys.argv)>3:
-    popup_scaling=float(sys.argv[3])
+if '--node' in sys.argv:
+    popup_scaling=float(var_popup_scaling)
 else:
     popup_scaling=100. # [%]; increase/decrease number of pop-up flights
 
@@ -641,8 +684,8 @@ simulation_start=min(AllFlights.SimTime) # Start point simulation
 time_var=np.arange(simulation_start,simulation_start+24.*3600.,1)
 
 # Scenario file for BlueSky
-if len(sys.argv)>1:
-    outputfile=open('scenario/' + str(sys.argv[1]) + '.scn','w') # Specifies output file
+if '--node' in sys.argv:
+    outputfile=open('scenario/' + str(var_name) + '.scn','w') # Specifies output file
 else:
     outputfile=open('scenario/scenariotest' + '.scn','w') # Specifies output file
 
@@ -665,8 +708,8 @@ for time in time_var:
 outputfile.close()
 
 # Information file on all flights and parameters
-if len(sys.argv)>1:
-    outputfile2=open('scenario/' + str(sys.argv[1]) + '_flight_information' + '.txt','w') # Specifies output file
+if '--node' in sys.argv:
+    outputfile2=open('scenario/' + str(var_name) + '_flight_information' + '.txt','w') # Specifies output file
 else:
     outputfile2=open('scenario/flight_information' + '.txt','w') # Specifies output file
 
@@ -751,6 +794,19 @@ for k in range(len(AllFlights.CallSign)):
     outputfile2.write('\n \n \n \n \n')    
     
 outputfile2.close()
+
+if len(sys.argv)<2:
+	var_name = 'scenariotest'
+	var_txt = open('variables.txt','w')
+	var_txt.write(str(var_name)+'\n') 			# Name
+	var_txt.write('Dataset1'+'\n') 				# Dataset
+	var_txt.write(str(popup_scaling*100)+'\n') 	# popup_scaling
+	var_txt.write('EAMAN'+'\n') 				# AMAN
+	var_txt.write('ASAPBASIC'+'\n') 			# Trajectory Predictor
+	var_txt.write('0'+'\n') 					# Pre-departure delay
+	var_txt.write(str(approach_margin)+'\n') 	# Approach margin
+	var_txt.close()
+	var_predeparture_delay = float(0.)
 
 # Simulation ready
 print('************************************** Simulation Ready *************************************')

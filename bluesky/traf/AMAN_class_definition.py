@@ -1,6 +1,6 @@
 # AMAN_class_definition.py
 from scenario_functions import *
-from scenario_generator import AllFlights # AllFlights contains information on all flights to be simulated
+from scenario_generator import AllFlights, var_predeparture_delay # AllFlights contains information on all flights to be simulated
 import numpy as np
 import copy as copy
 from performanceA import *
@@ -93,11 +93,6 @@ class AMAN(Flights):
         
         self.EnergyCost=[] # Energy cost per aircraft
         
-        self.turnavoid_lastposstime_nextwpt=[] # To avoid endless turns, the last possible (realistic) time at the next waypoint is derived. If the aircraft has not arrived before this time, there is a direct command given to the next waypoint
-        self.turnavoid_LAT_used=[] # Waypoint LAT for which the last possible (realistic) time has been established
-        self.turnavoid_LON_used=[] # Waypoint LON for which the last possible (realistic) time has been established
-        self.turnavoid_idx_used=[] # Waypoint idx for which the last possible (realistic) time has been established
-        
         self.out1=[] # Temporary values used by AMAN
         self.out2=[] # Temporary values used by AMAN
         self.out3=[] # Temporary values used by AMAN
@@ -135,6 +130,13 @@ class AMAN(Flights):
         self.LOG_seqhist_disttorwy=[] # Logger: record direct distance (to APT) in framework of sequence history 
         self.LOG_seqhist_flightphase=[] # Logger: record flight phase in framework of sequence history        
         self.LOG_seqhist_STAstatus=[] # Logger: record status of STA in framework of sequence history        
+		
+        self.LOG_speed_changes_before_TOD_per_1_kts=[] # Logger: log amount of speed changes before TOD per 1 kts
+        self.LOG_speed_changes_after_TOD_per_1_kts=[] # Logger: log amount of speed changes after TOD per 1 kts
+        self.LOG_speed_changes_before_TOD_per_5_kts=[] # Logger: log amount of speed changes before TOD per 5 kts
+        self.LOG_speed_changes_after_TOD_per_5_kts=[] # Logger: log amount of speed changes after TOD per 5 kts
+        self.LOG_speed_changes_per_1_kts=[] # Logger: log amount of speed changes per 1 knot
+        self.LOG_speed_changes_per_5_kts=[] # Logger: log amount of speed changes per 5 knots
         
         self.initialize_values(unique_runways) # Initialise all parameters
      
@@ -232,12 +234,7 @@ class AMAN(Flights):
             
             self.IterationCounter=0 # Iteration counter
         
-            self.EnergyCost = np.append(self.EnergyCost,0.) # Energy cost per aircraft
-            
-            self.turnavoid_lastposstime_nextwpt = np.append(self.turnavoid_lastposstime_nextwpt,-1.) # To avoid endless turns, the last possible time at the next waypoint is derived. If the aircraft has not arrived before this time, there is a direct command given to the next waypoint
-            self.turnavoid_LAT_used = np.append(self.turnavoid_LAT_used,-999.) # Waypoint LAT for which the last possible (realistic) time has been established
-            self.turnavoid_LON_used = np.append(self.turnavoid_LON_used,-999.) # Waypoint LON for which the last possible (realistic) time has been established
-            self.turnavoid_idx_used = np.append(self.turnavoid_idx_used,-1.) # Waypoint idx for which the last possible (realistic) time has been established   
+            self.EnergyCost = np.append(self.EnergyCost,0.) # Energy cost per aircraft 
             
             self.LOG_time_at_CBAS = np.append(self.LOG_time_at_CBAS,-999.) # Logger: estimated time at CBAS
             self.LOG_time_CBAS_passed = np.append(self.LOG_time_CBAS_passed,-999.) # Logger: time at CBAS
@@ -267,7 +264,14 @@ class AMAN(Flights):
             self.LOG_seqhist_number.append([]) # Logger: record which number in sequence (at RWY) in framework of sequence history        
             self.LOG_seqhist_disttorwy.append([]) # Logger: record direct distance (to APT) in framework of sequence history 
             self.LOG_seqhist_flightphase.append([]) # Logger: record flight phase in framework of sequence history        
-            self.LOG_seqhist_STAstatus.append([]) # Logger: record status of STA in framework of sequence history          
+            self.LOG_seqhist_STAstatus.append([]) # Logger: record status of STA in framework of sequence history      
+
+            self.LOG_speed_changes_before_TOD_per_1_kts = np.append(self.LOG_speed_changes_before_TOD_per_1_kts,0.) # Logger: log amount of speed changes before TOD per 1 kts
+            self.LOG_speed_changes_after_TOD_per_1_kts = np.append(self.LOG_speed_changes_after_TOD_per_1_kts,0.) # Logger: log amount of speed changes after TOD per 1 kts
+            self.LOG_speed_changes_before_TOD_per_5_kts = np.append(self.LOG_speed_changes_before_TOD_per_5_kts,0.) # Logger: log amount of speed changes before TOD per 5 kts
+            self.LOG_speed_changes_after_TOD_per_5_kts = np.append(self.LOG_speed_changes_after_TOD_per_5_kts,0.) # Logger: log amount of speed changes after TOD per 5 kts	
+            self.LOG_speed_changes_per_1_kts = np.append(self.LOG_speed_changes_per_1_kts,0.) # Logger: log amount of speed changes per 1 kts
+            self.LOG_speed_changes_per_5_kts = np.append(self.LOG_speed_changes_per_5_kts,0.) # Logger: log amount of speed changes per 5 kts
         
 			# Count amount of popups
             if self.AllFlights.PopupLabel[j]=='POPUP':
@@ -532,7 +536,7 @@ class AMAN(Flights):
                 # Situation 1: Aircraft before almost IAF
                 if (self.Next_wpt_name[idx] in self.AllFlights.Route_outside_TMA[idx].waypoints) and self.FinalDelAbsStrat_sw[idx]=='False': # Find active waypoint (outside TMA?)
                     wpt_index=self.AllFlights.Route_outside_TMA[idx].waypoints.index(self.Next_wpt_name[idx])
-                    
+					
                     self.MaxPossSpdDelAbs_to_nextwpt[idx]=self.MaxFT_to_nextwpt[idx]-self.CurrFlTime_to_nextwpt[idx] # Maximum delay that can be absorbed to next waypoint (from current point) by speed reduction
                     self.MaxPossSpdDelAbs_to_IAF[idx]=self.MaxFT_to_IAF[idx]-self.CurrFlTime_to_IAF[idx] # Maximum delay that can be absorbed to IAF (from current point) by speed reduction
 					
@@ -552,7 +556,23 @@ class AMAN(Flights):
                             else:
 								newCAS_temp=mpers2kts(vtas2cas(kts2mpers(newTAS_temp),BS_Altitude[k]))
  
-                            # Alter speed to next waypoint in object
+                            # Record speed change in logger
+                            if self.Before_or_After_TOD[idx] == 'Before' and abs(self.LOG_speed_changes_per_1_kts[idx]-newCAS_temp) > 1:
+								self.LOG_speed_changes_before_TOD_per_1_kts[idx] = self.LOG_speed_changes_before_TOD_per_1_kts[idx] + 1
+								self.LOG_speed_changes_per_1_kts[idx] = newCAS_temp
+                            elif self.Before_or_After_TOD[idx] == 'After' and abs(self.LOG_speed_changes_per_1_kts[idx]-newCAS_temp) > 1:
+								self.LOG_speed_changes_after_TOD_per_1_kts[idx] = self.LOG_speed_changes_after_TOD_per_1_kts[idx] + 1
+								self.LOG_speed_changes_per_1_kts[idx] = newCAS_temp
+					
+							# Record speed change in logger
+                            if self.Before_or_After_TOD[idx] == 'Before' and abs(self.LOG_speed_changes_per_5_kts[idx]-newCAS_temp) > 5:
+								self.LOG_speed_changes_before_TOD_per_5_kts[idx] = self.LOG_speed_changes_before_TOD_per_5_kts[idx] + 1
+								self.LOG_speed_changes_per_5_kts[idx] = newCAS_temp
+                            elif self.Before_or_After_TOD[idx] == 'After' and abs(self.LOG_speed_changes_per_5_kts[idx]-newCAS_temp) > 5:
+								self.LOG_speed_changes_after_TOD_per_5_kts[idx] = self.LOG_speed_changes_after_TOD_per_5_kts[idx] + 1
+								self.LOG_speed_changes_per_5_kts[idx] = newCAS_temp
+							
+							# Alter speed to next waypoint in object
                             self.AllFlights.Route_outside_TMA[idx].spd[z]=max(newCAS_temp,self.Original_AllFlights.Route_outside_TMA[idx].minspd[z]) # self.CurrFlplCAS_nextwpt[idx] will be using this value
                             self.AllFlights.Route_outside_TMA[idx].spd_TAS[z]=max(newTAS_temp,self.Original_AllFlights.Route_outside_TMA[idx].minspd_TAS[z]) # self.CurrFlplTAS_nextwpt[idx] will be using this value
                             
@@ -864,6 +884,22 @@ class AMAN(Flights):
                             else:
 								newCAS_temp=mpers2kts(vtas2cas(kts2mpers(newTAS_temp),BS_Altitude[k]))
                         
+                            # Record speed change in logger
+                            if self.Before_or_After_TOD[idx] == 'Before' and abs(self.LOG_speed_changes_per_1_kts[idx]-newCAS_temp) > 1:
+								self.LOG_speed_changes_before_TOD_per_1_kts[idx] = self.LOG_speed_changes_before_TOD_per_1_kts[idx] + 1
+								self.LOG_speed_changes_per_1_kts[idx] = newCAS_temp
+                            elif self.Before_or_After_TOD[idx] == 'After' and abs(self.LOG_speed_changes_per_1_kts[idx]-newCAS_temp) > 1:
+								self.LOG_speed_changes_after_TOD_per_1_kts[idx] = self.LOG_speed_changes_after_TOD_per_1_kts[idx] + 1
+								self.LOG_speed_changes_per_1_kts[idx] = newCAS_temp
+					
+							# Record speed change in logger
+                            if self.Before_or_After_TOD[idx] == 'Before' and abs(self.LOG_speed_changes_per_5_kts[idx]-newCAS_temp) > 5:
+								self.LOG_speed_changes_before_TOD_per_5_kts[idx] = self.LOG_speed_changes_before_TOD_per_5_kts[idx] + 1
+								self.LOG_speed_changes_per_5_kts[idx] = newCAS_temp
+                            elif self.Before_or_After_TOD[idx] == 'After' and abs(self.LOG_speed_changes_per_5_kts[idx]-newCAS_temp) > 5:
+								self.LOG_speed_changes_after_TOD_per_5_kts[idx] = self.LOG_speed_changes_after_TOD_per_5_kts[idx] + 1
+								self.LOG_speed_changes_per_5_kts[idx] = newCAS_temp
+						
                             # Alter speed to next waypoint in object
                             self.AllFlights.Route_outside_TMA[idx].spd[z]=newCAS_temp # self.CurrFlplCAS_nextwpt[idx] will be using this value
                             self.AllFlights.Route_outside_TMA[idx].spd_TAS[z]=newTAS_temp # self.CurrFlplTAS_nextwpt[idx] will be using this value
@@ -1470,8 +1506,8 @@ class AMAN(Flights):
                      TMA_transition_time=AllFlights.Route_TMA[idx].totestFT
                      
                     # Here you can add a (random) error to the pre-departure estimate: negative error (delay) or positive error (earlier take-off)
-                     if len(sys.argv)>6: # sys.argv[6] positive means that the pop-up flight departure is delayed
-                        self.CurrEstTime_at_RWY[idx]=(self.AllFlights.PreDepEstTime_at_RWY[idx]-simulation_start)-float(sys.argv[6]) # Need to substract the 'delay' in the pre-departure estimate.
+                     if '--node' in sys.argv: # sys.argv[6] positive means that the pop-up flight departure is delayed
+                        self.CurrEstTime_at_RWY[idx]=(self.AllFlights.PreDepEstTime_at_RWY[idx]-simulation_start)-float(var_predeparture_delay) # Need to substract the 'delay' in the pre-departure estimate.
                      else:    
                          self.CurrEstTime_at_RWY[idx]=self.AllFlights.PreDepEstTime_at_RWY[idx]-simulation_start                     
                     
@@ -1735,7 +1771,6 @@ class AMAN(Flights):
                 list_index.append(idx)
             
         if len(ETAs)>0:        
-            
             sorting_order=np.argsort(ETAs)
             
             ETAs_ordered=ETAs
@@ -1853,7 +1888,6 @@ class AMAN(Flights):
                 if self.CurrEstTime_at_IAF[idx]>-999.:
                     self.LOG_time_at_IAF[idx]=self.CurrEstTime_at_IAF[idx]
                     
-                              
                 if self.CurrEstTime_at_RWY[idx]>-999.:
                     self.LOG_time_at_RWY[idx]=self.CurrEstTime_at_RWY[idx]
    
