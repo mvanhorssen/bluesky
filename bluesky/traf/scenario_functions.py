@@ -457,7 +457,7 @@ class Route_outside_TMA:
     def remove_intermediate_waypoints(self):
         i = 0
         while i < len(self.waypoints):
-            if self.waypoints[i].find('!')  == 0:
+            if (self.waypoints[i].find('!')  == 0) or (self.waypoints[i].find('$')  == 0):
 				del self.waypoints[i]
 				del self.LAT[i]
 				del self.LON[i]

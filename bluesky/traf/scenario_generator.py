@@ -175,7 +175,7 @@ if '--node' in sys.argv:
 	
 if '--node' in sys.argv:
     if var_dataset==str('Dataset1'):
-        filename='20150707Regulated58UTC.so6'
+        filename='20150707_0400_0700UTC.so6'
         
     elif var_dataset==str('Dataset2'):
         filename='20150707Regulated1619UTC.so6'
@@ -247,7 +247,7 @@ if '--node' in sys.argv:
         filename='20150914Regulated1316UTC.so6'
            
 else:
-    filename='20150707Regulated58UTC.so6' # Traffic .so6 file to be simulated
+    filename='20150707_0400_0700UTC.so6' # Traffic .so6 file to be simulated
 
 intarrtime_AMAN_runway=100. # Specifies the inter-arrival time for each runway
 
