@@ -391,7 +391,8 @@ for j in range(len(AllFlights.Route_outside_TMA)): # Find IAF used and set route
     AllFlights.Route_outside_TMA[j].calc_dist_and_heading() # Calculate distance and heading between waypoints
     AllFlights.Route_outside_TMA[j].delete_tooshort_legs() # Delete short legs
     AllFlights.Route_outside_TMA[j].calc_dist_and_heading() # Re-calculate distance and heading between waypoints
-    
+    AllFlights.Route_outside_TMA[j].delete_tooshort_legs() # Delete short legs
+    AllFlights.Route_outside_TMA[j].calc_dist_and_heading() # Re-calculate distance and heading between waypoints
     AllFlights.Route_outside_TMA[j].findFlightPathAngle() # Find flight path angle
     
     idx=AllFlights.Route_outside_TMA[j].waypoints.index(AllFlights.Route_outside_TMA[j].whichIAF)
