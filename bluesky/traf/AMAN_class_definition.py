@@ -453,17 +453,22 @@ class AMAN(Flights):
             
 			# Calculate estimate and flying time to CBAS
             for k in range(len(self.AllFlights.Route_outside_TMA[idx].waypoints)):
-				CBAS_distance = qdrdistA(float(self.AllFlights.Route_outside_TMA[idx].LAT[k]),float(self.AllFlights.Route_outside_TMA[idx].LON[k]),float(self.AllFlights.Route_TMA[idx].RWY_LAT),float(self.AllFlights.Route_TMA[idx].RWY_LON))
-				if self.AllFlights.Route_outside_TMA[idx].directdist_RWY[k] <= 106. and self.AllFlights.Route_outside_TMA[idx].directdist_RWY[k] >= 104. and self.AllFlights.Route_outside_TMA[idx].whichIAF == 'ARTIP' and self.LOG_CBAS_passed[idx] == False:
-					tempindex=self.AllFlights.Route_outside_TMA[idx].waypoints.index(self.Next_wpt_name[idx])
+				if str(self.AllFlights.Route_outside_TMA[idx].waypoints[k] == 'WPT_CBAS') and str(self.AllFlights.Route_outside_TMA[idx].whichIAF) == 'ARTIP' and self.LOG_CBAS_passed[idx] == False:
+					if str(self.Next_wpt_name[idx]) == 'ARTIP':
+						break
+					tempindex = self.AllFlights.Route_outside_TMA[idx].waypoints.index(self.Next_wpt_name[idx])
 					self.CurrFlTime_to_CBAS[idx] = self.CurrFlTime_to_nextwpt[idx]+np.sum(self.AllFlights.Route_outside_TMA[idx].estFT[tempindex:k])
 					self.CurrEstTime_at_CBAS[idx] = simt+self.CurrFlTime_to_CBAS[idx]
-				elif self.AllFlights.Route_outside_TMA[idx].directdist_RWY[k] <= 86. and self.AllFlights.Route_outside_TMA[idx].directdist_RWY[k] >= 84. and self.AllFlights.Route_outside_TMA[idx].whichIAF == 'RIVER' and self.LOG_CBAS_passed[idx] == False:
-					tempindex=self.AllFlights.Route_outside_TMA[idx].waypoints.index(self.Next_wpt_name[idx])
+				if str(self.AllFlights.Route_outside_TMA[idx].waypoints[k] == 'WPT_CBAS') and str(self.AllFlights.Route_outside_TMA[idx].whichIAF) == 'RIVER' and self.LOG_CBAS_passed[idx] == False:
+					if str(self.Next_wpt_name[idx]) == 'RIVER':
+						break
+					tempindex = self.AllFlights.Route_outside_TMA[idx].waypoints.index(self.Next_wpt_name[idx])
 					self.CurrFlTime_to_CBAS[idx] = self.CurrFlTime_to_nextwpt[idx]+np.sum(self.AllFlights.Route_outside_TMA[idx].estFT[tempindex:k])
 					self.CurrEstTime_at_CBAS[idx] = simt+self.CurrFlTime_to_CBAS[idx]
-				elif self.AllFlights.Route_outside_TMA[idx].directdist_RWY[k] <= 94. and self.AllFlights.Route_outside_TMA[idx].directdist_RWY[k] >= 92. and self.AllFlights.Route_outside_TMA[idx].whichIAF == 'SUGOL' and self.LOG_CBAS_passed[idx] == False:
-					tempindex=self.AllFlights.Route_outside_TMA[idx].waypoints.index(self.Next_wpt_name[idx])
+				if str(self.AllFlights.Route_outside_TMA[idx].waypoints[k] == 'WPT_CBAS') and str(self.AllFlights.Route_outside_TMA[idx].whichIAF) == 'SUGOL' and self.LOG_CBAS_passed[idx] == False:
+					if str(self.Next_wpt_name[idx]) == 'SUGOL':
+						break
+					tempindex = self.AllFlights.Route_outside_TMA[idx].waypoints.index(self.Next_wpt_name[idx])
 					self.CurrFlTime_to_CBAS[idx] = self.CurrFlTime_to_nextwpt[idx]+np.sum(self.AllFlights.Route_outside_TMA[idx].estFT[tempindex:k])
 					self.CurrEstTime_at_CBAS[idx] = simt+self.CurrFlTime_to_CBAS[idx]
 			
