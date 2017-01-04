@@ -178,37 +178,37 @@ if '--node' in sys.argv:
         filename='20150707_0400_0700UTC.so6'
         
     elif var_dataset==str('Dataset2'):
-        filename='20150707Regulated1619UTC.so6'
+        filename='20150707_1600_1900UTC.so6'
 
     elif var_dataset==str('Dataset3'):
-        filename='20150716Regulated58UTC.so6'
+        filename='20150716_0400_0700UTC.so6'
 
     elif var_dataset==str('Dataset4'):
-        filename='20150716Regulated1619UTC.so6'
+        filename='20150716_1600_1900UTC.so6'
                 
     elif var_dataset==str('Dataset5'):
-        filename='20150807Regulated58UTC.so6'
+        filename='20150807_0400_0700UTC.so6'
                 
     elif var_dataset==str('Dataset6'):
-        filename='20150807Regulated1619UTC.so6'
+        filename='20150807_1600_1900UTC.so6'
                 
     elif var_dataset==str('Dataset7'):
-        filename='20150812Regulated58UTC.so6'
+        filename='20150812_0400_0700UTC.so6'
                 
     elif var_dataset==str('Dataset8'):
-        filename='20150812Regulated1619UTC.so6'
+        filename='20150812_1600_1900UTC.so6'
             
     elif var_dataset==str('Dataset9'):
-        filename='20150901Regulated58UTC.so6'
+        filename='20150901_0400_0700UTC.so6'
         
     elif var_dataset==str('Dataset10'):
-        filename='20150901Regulated1619UTC.so6'        
+        filename='20150901_1600_1900UTC.so6'        
         
     elif var_dataset==str('Dataset11'):
-        filename='20150914Regulated58UTC.so6'
+        filename='20150914_0400_0700UTC.so6'
         
     elif var_dataset==str('Dataset12'):
-        filename='20150914Regulated1619UTC.so6'        
+        filename='20150914_1600_1900UTC.so6'        
         
     elif var_dataset==str('Dataset21'):
         filename='20150707Regulated1013UTC.so6'       
