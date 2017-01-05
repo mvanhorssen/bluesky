@@ -143,7 +143,7 @@ class Route_outside_TMA:
     def delete_tooshort_legs(self):
         for k in range(len(self.waypoints)):
             if k<(len(self.waypoints)-1) and k>0: # Never delete first waypoint
-                if (self.dist[k]<3. or (self.dist[k]<8. and (abs(self.heading[k]-self.heading[k-1])>40.))) and self.waypoints[k] != 'WPT_CBAS':
+                if (self.dist[k]<3. or (self.dist[k]<8. and (abs(self.heading[k]-self.heading[k-1])>40.))) and self.waypoints[k] != 'WPT_CBAS' and self.waypoints[k] != 'WPT_almost_IAF':
                     del self.waypoints[k]
                     del self.LAT[k]
                     del self.LON[k]
@@ -378,6 +378,22 @@ class Route_outside_TMA:
         for k in range(len(self.waypoints)):
             self.maxposs_spddelabs_to_IAF.append(np.sum(self.maxposs_spddelabs_segment[k:]))
             self.maxposs_spddelabs_to_RWY.append(self.maxposs_spddelabs_to_IAF[-1]+TMArouteobject.maxposs_spddelabs_total)
+	
+    def find_almostIAF_waypoint(self):
+		almostIAF_distance = 0.
+		i = 1.
+		temp_heading,temp0 = qdrdist(float(self.IAF_LAT),float(self.IAF_LON),float(self.LAT[-2]),float(self.LON[-2]))
+		while almostIAF_distance < 15.:
+			temp_LAT,temp_LON = pos_and_dist_and_bearing_2_newpos(float(self.IAF_LAT),float(self.IAF_LON),i,temp_heading,Rearth)
+			almostIAF_distance = qdrdistA(float(temp_LAT),float(temp_LON),float(self.IAF_LAT),float(self.IAF_LON))
+			temp_distance = i
+			i = i+1
+		temp_ratio = (temp_distance/temp0)
+		temp_FL = float(90.) + temp_ratio * (float(self.FL[-1])-float(90.))
+		self.waypoints.insert(-1, 'WPT_almost_IAF')
+		self.LAT.insert(-1, temp_LAT)
+		self.LON.insert(-1, temp_LON)
+		self.FL.insert(-1, temp_FL)
 	
     def find_CBAS_waypoint(self):
 		for k in range(len(self.waypoints)):

@@ -298,10 +298,10 @@ if '--node' in sys.argv:
         Take_into_account_schedule_horizon=500. # [nm]; From this horizon, aircraft are used for scheduling
         Freeze_horizon=450. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon
 else:    
-    AMAN_horizon=200. # [nm]; Planning Horizon
-    SARA_horizon=190. # [nm]; Active Advisory Horizon
+    AMAN_horizon=120. # [nm]; Planning Horizon
+    SARA_horizon=100. # [nm]; Active Advisory Horizon
     Take_into_account_schedule_horizon=250. # [nm]; From this horizon, aircraft are used for scheduling
-    Freeze_horizon=200. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon
+    Freeze_horizon=120. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon
 
 #####
 # Scenario editing
@@ -387,6 +387,7 @@ for j in range(len(AllFlights.Route_outside_TMA)): # Find IAF used and set route
 	
     AllFlights.Route_outside_TMA[j].find_CBAS_waypoint() # Add CBAS as waypoint
     AllFlights.Route_outside_TMA[j].remove_intermediate_waypoints() # Remove unwanted waypoints
+    AllFlights.Route_outside_TMA[j].find_almostIAF_waypoint() # Add almost_IAF as waypoint
 	
     AllFlights.Route_outside_TMA[j].calc_dist_and_heading() # Calculate distance and heading between waypoints
     AllFlights.Route_outside_TMA[j].delete_tooshort_legs() # Delete short legs
@@ -802,7 +803,7 @@ if len(sys.argv)<2:
 	var_txt.write(str(var_name)+'\n') 			# Name
 	var_txt.write('Dataset1'+'\n') 				# Dataset
 	var_txt.write(str(popup_scaling*100)+'\n') 	# popup_scaling
-	var_txt.write('EAMAN'+'\n') 				# AMAN
+	var_txt.write('AMAN'+'\n') 					# AMAN
 	var_txt.write('ASAPBASIC'+'\n') 			# Trajectory Predictor
 	var_txt.write('0'+'\n') 					# Pre-departure delay
 	var_txt.write(str(approach_margin)+'\n') 	# Approach margin

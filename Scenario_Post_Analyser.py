@@ -5,14 +5,13 @@ import sys
 
 show_graphs_sw=False
 
-
 #First read pickled data (Make sure the order is identical as in the PreAnalyser)
-if len(sys.argv)>2:
+if len(sys.argv)>1:
     fnametempor=str(sys.argv[1])
 else:
     fnametempor='214scenario2c12' #Specify file (without .pkl extension) to be read  
 
-fnametempor='XMAN450test' 
+#fnametempor='scenariotest' 
     
 with open(fnametempor+'.pkl','rb') as input:
     

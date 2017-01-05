@@ -89,7 +89,7 @@ class Simulation(QObject):
 
         while self.running:
 			# Stop simulation automatically
-            if self.simt > 85E3:
+            if self.simt > 40E3:
 				self.stop()
 				
             # Datalog pre-update (communicate current sim time to loggers)
