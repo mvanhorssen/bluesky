@@ -123,7 +123,8 @@ class AMAN(Flights):
 
         self.LOG_lowlevel_delabs_time=[] # Logger: how many seconds should aircraft absorb prior to entering TMA low-level (dog leg, two semicircles, holding stacks)        
         self.LOG_lowlevel_delabs_dist=[] # Logger: how much distance [nm] should aircraft fly extra prior to entering TMA low-level (dog leg, two semicircles, holding stacks)
-        self.LOG_lowlevel_delabs_type=[] # Logger: which type of delay absorption ('None','DogLeg','TwoSemiCircles' or 'HoldingStack')        
+        self.LOG_lowlevel_delabs_type=[] # Logger: which type of delay absorption ('None','DogLeg','TwoSemiCircles' or 'HoldingStack')  
+        self.LOG_lowlevel_delabs_IAF=[] # Logger: which IAF does delay absorption take place		
         self.LOG_lowlevel_delabs_simtime=[] # Logger: record corresponding simulation time
         
         self.LOG_seqhist_number=[] # Logger: record which number in sequence (at RWY) in framework of sequence history        
@@ -137,6 +138,18 @@ class AMAN(Flights):
         self.LOG_speed_changes_after_TOD_per_5_kts=[] # Logger: log amount of speed changes after TOD per 5 kts
         self.LOG_speed_changes_per_1_kts=[] # Logger: log amount of speed changes per 1 knot
         self.LOG_speed_changes_per_5_kts=[] # Logger: log amount of speed changes per 5 knots
+		
+        self.LOG_traffic_bunches_ARTIP=[] # Logger: log amount of bunches flying to IAF ARTIP
+        self.LOG_traffic_bunches_RIVER=[] # Logger: log amount of bunches flying to IAF RIVER
+        self.LOG_traffic_bunches_SUGOL=[] # Logger: log amount of bunches flying to IAF SUGOL
+        self.LOG_traffic_bunches_18C=[] # Logger: log amount of bunches flying to RWY 18C
+        self.LOG_traffic_bunches_27=[] # Logger: log amount of bunches flying to RWY 27
+		
+        self.LOG_trafficbunchhist_esttime=[]
+        self.LOG_trafficbunchhist_disttorwy=[]
+        self.LOG_trafficbunchhist_STAstatus=[]
+        self.LOG_trafficbunchhist_currdelay=[]
+        self.LOG_trafficbunchhist_simtime=[]
         
         self.initialize_values(unique_runways) # Initialise all parameters
      
@@ -209,7 +222,6 @@ class AMAN(Flights):
             self.MaxEstTime_at_RWY = np.append(self.MaxEstTime_at_RWY,-999.) # Latest posible estimated time at RWY (minimum speed)
             self.MaxFT_to_RWY = np.append(self.MaxFT_to_RWY,0.) # Maximum flying time to IAF (minimum speed)
             
-            
             self.MaxPossSpdDelAbs_to_nextwpt = np.append(self.MaxPossSpdDelAbs_to_nextwpt,0.) # Maximum delay that can be absorbed to next waypoint by speed reduction
             self.MaxPossSpdDelAbs_to_IAF = np.append(self.MaxPossSpdDelAbs_to_IAF,self.AllFlights.Route_outside_TMA[j].maxposs_spddelabs_to_IAF[0]) # Maximum delay that can be absorbed to IAF (from current point) by speed reduction
             self.MaxPossSpdDelAbs_to_RWY = np.append(self.MaxPossSpdDelAbs_to_RWY,self.AllFlights.Route_outside_TMA[j].maxposs_spddelabs_to_RWY[0]) # Maximum delay that can be absorbed to RWY (from current point) by speed reduction
@@ -259,8 +271,9 @@ class AMAN(Flights):
             self.LOG_lowlevel_delabs_time = np.append(self.LOG_lowlevel_delabs_time,-999.) # Logger: how many seconds should aircraft absorb prior to entering TMA low-level (dog leg, two semicircles, holding stacks)        
             self.LOG_lowlevel_delabs_dist = np.append(self.LOG_lowlevel_delabs_time,-999.)  # Logger: how much distance [nm] should aircraft fly extra prior to entering TMA low-level (dog leg, two semicircles, holding stacks)
             self.LOG_lowlevel_delabs_type.append('None') # Logger: which type of delay absorption ('None','DogLeg','TwoSemiCircles' or 'HoldingStack')
+            self.LOG_lowlevel_delabs_IAF.append('') # Logger: which IAF does delay absorption take place	
             self.LOG_lowlevel_delabs_simtime.append(-999.) # Logger: record corresponding simulation time
-        
+			
             self.LOG_seqhist_number.append([]) # Logger: record which number in sequence (at RWY) in framework of sequence history        
             self.LOG_seqhist_disttorwy.append([]) # Logger: record direct distance (to APT) in framework of sequence history 
             self.LOG_seqhist_flightphase.append([]) # Logger: record flight phase in framework of sequence history        
@@ -272,6 +285,12 @@ class AMAN(Flights):
             self.LOG_speed_changes_after_TOD_per_5_kts = np.append(self.LOG_speed_changes_after_TOD_per_5_kts,0.) # Logger: log amount of speed changes after TOD per 5 kts	
             self.LOG_speed_changes_per_1_kts = np.append(self.LOG_speed_changes_per_1_kts,0.) # Logger: log amount of speed changes per 1 kts
             self.LOG_speed_changes_per_5_kts = np.append(self.LOG_speed_changes_per_5_kts,0.) # Logger: log amount of speed changes per 5 kts
+			
+            self.LOG_trafficbunchhist_esttime.append([])
+            self.LOG_trafficbunchhist_disttorwy.append([])
+            self.LOG_trafficbunchhist_STAstatus.append([])
+            self.LOG_trafficbunchhist_currdelay.append([])
+            self.LOG_trafficbunchhist_simtime.append([])
         
 			# Count amount of popups
             if self.AllFlights.PopupLabel[j]=='POPUP':
@@ -696,6 +715,7 @@ class AMAN(Flights):
                     self.LOG_lowlevel_delabs_time[idx]=time_flown_extra_dogleg # Logger: record time and distance (low-level holding)                    
                     self.LOG_lowlevel_delabs_dist[idx]=distance_tobeflown_extra_dogleg # Logger: record time and distance (low-level holding)                    
                     self.LOG_lowlevel_delabs_type[idx]='DogLeg' # Logger: which type of delay absorption ('None','DogLeg','TwoSemiCircles' or 'HoldingStack')
+                    self.LOG_lowlevel_delabs_IAF[idx]=self.AllFlights.Route_outside_TMA[idx].whichIAF
                     self.LOG_lowlevel_delabs_simtime[idx]=simtime                    
                     
                     A_LAT,A_LON,alpha=find_extraflying_waypoints_dogleg(self.AllFlights.Route_outside_TMA[idx].almostIAF_LAT,self.AllFlights.Route_outside_TMA[idx].almostIAF_LON,self.AllFlights.Route_outside_TMA[idx].IAF_LAT,self.AllFlights.Route_outside_TMA[idx].IAF_LON,distance_tobeflown_extra_dogleg,self.AllFlights.Route_TMA[idx].heading[0]) # nm, degrees                     
@@ -729,7 +749,8 @@ class AMAN(Flights):
                     
                     self.LOG_lowlevel_delabs_time[idx]=time_flown_extra_semicircles # Logger: record time and distance (low-level holding)                    
                     self.LOG_lowlevel_delabs_dist[idx]=distance_tobeflown_extra_twosemicircles # Logger: record time and distance (low-level holding)                    
-                    self.LOG_lowlevel_delabs_type[idx]='TwoSemicircles' # Logger: which type of delay absorption ('None','DogLeg','TwoSemiCircles' or 'HoldingStack')     
+                    self.LOG_lowlevel_delabs_type[idx]='TwoSemicircles' # Logger: which type of delay absorption ('None','DogLeg','TwoSemiCircles' or 'HoldingStack')   
+                    self.LOG_lowlevel_delabs_IAF[idx]=self.AllFlights.Route_outside_TMA[idx].whichIAF					
                     self.LOG_lowlevel_delabs_simtime[idx]=simtime     
                     
                     A2_LAT,A2_LON,A3_LAT,A3_LON,B_LAT,B_LON,C1_LAT,C1_LON,C2_LAT,C2_LON,nominal_heading=find_extraflying_waypoints_semicircles(float(self.AllFlights.Route_outside_TMA[idx].almostIAF_LAT),float(self.AllFlights.Route_outside_TMA[idx].almostIAF_LON),float(self.AllFlights.Route_outside_TMA[idx].IAF_LAT),float(self.AllFlights.Route_outside_TMA[idx].IAF_LON),distance_tobeflown_extra_twosemicircles,self.AllFlights.Route_TMA[idx].heading[0])
@@ -805,6 +826,7 @@ class AMAN(Flights):
                     self.LOG_lowlevel_delabs_time[idx]=time_flown_extra_holding # Logger: record time and distance (low-level holding)                    
                     self.LOG_lowlevel_delabs_dist[idx]=distance_flown_per_holding*number_holdings # Logger: record time and distance (low-level holding)                    
                     self.LOG_lowlevel_delabs_type[idx]='HoldingStack' # Logger: which type of delay absorption ('None','DogLeg','TwoSemiCircles' or 'HoldingStack')
+                    self.LOG_lowlevel_delabs_IAF[idx]=self.AllFlights.Route_outside_TMA[idx].whichIAF
                     self.LOG_lowlevel_delabs_simtime[idx]=simtime     
                     
                     CenterLAT,CenterLON,R_Earth,heading_TMA,heading_perp=find_holdingstack_center(distance_flown_per_holding/(2.*np.pi),float(self.AllFlights.Route_outside_TMA[idx].IAF_LAT),float(self.AllFlights.Route_outside_TMA[idx].IAF_LON),self.AllFlights.Route_TMA[idx].heading[0])
@@ -1958,6 +1980,7 @@ class AMAN(Flights):
                 if self.CurrLoc[idx]=='TMA' and self.LOG_lowlevel_delabs_time[idx]<0.:
                     self.LOG_lowlevel_delabs_time[idx]=0.
                     self.LOG_lowlevel_delabs_dist[idx]=0.
+                    self.LOG_lowlevel_delabs_IAF[idx]=self.AllFlights.Route_outside_TMA[idx].whichIAF
                     self.LOG_lowlevel_delabs_simtime[idx]=simtime
 	
     def AMAN_LOG_CBAShistory(self,BS_CallSign,simulation_start):
@@ -1969,3 +1992,48 @@ class AMAN(Flights):
 			
 			if self.LOG_time_CBAS_passed[idx] > -999. and self.LOG_CBAS_passed[idx] == True:
 				self.LOG_accuracy_predepest_at_CBAS[idx] = self.LOG_time_CBAS_passed[idx] - (self.AllFlights.PreDepEstTime_at_CBAS[idx]-simulation_start)
+				
+    def AMAN_LOG_traffic_bunches(self,BS_CallSign,approach_margin):
+		counter_IAF_ARTIP = 0
+		counter_IAF_RIVER = 0
+		counter_IAF_SUGOL = 0
+		counter_RWY_18C = 0
+		counter_RWY_27 = 0
+		for k in range(len(BS_CallSign)):
+			idx = self.AllFlights.CallSign.index(BS_CallSign[k])
+			for i in range(len(BS_CallSign)):
+				idx_2 = self.AllFlights.CallSign.index(BS_CallSign[i])
+				if (idx_2 != idx) and ((self.CurrEstTime_at_CBAS[idx_2]-self.CurrEstTime_at_CBAS[idx])<approach_margin) and ((self.CurrEstTime_at_CBAS[idx_2]-self.CurrEstTime_at_CBAS[idx])>0.) and (self.whichIAFs[idx_2] == self.whichIAFs[idx]) and self.LOG_CBAS_passed[idx_2] == False: # and ((self.CurrDelToBeAbs[idx_2]-self.MaxPossSpdDelAbs_to_IAF[idx_2])>approach_margin) 
+					if str(self.whichIAFs[idx_2]) == 'ARTIP':
+						counter_IAF_ARTIP = counter_IAF_ARTIP + 1
+					if str(self.whichIAFs[idx_2]) == 'RIVER':
+						counter_IAF_RIVER = counter_IAF_RIVER + 1
+					if str(self.whichIAFs[idx_2]) == 'SUGOL':
+						counter_IAF_SUGOL = counter_IAF_SUGOL + 1
+				if (idx_2 != idx) and ((self.CurrEstTime_at_CBAS[idx_2]-self.CurrEstTime_at_CBAS[idx])<approach_margin) and ((self.CurrEstTime_at_CBAS[idx_2]-self.CurrEstTime_at_CBAS[idx])>0.) and self.LOG_CBAS_passed[idx_2] == False: # and ((self.CurrDelToBeAbs[idx_2]-self.MaxPossSpdDelAbs_to_IAF[idx_2])>approach_margin) 
+					if str(self.whichRWYs[idx_2]) == '18C':
+						counter_RWY_18C = counter_RWY_18C + 1
+					if str(self.whichRWYs[idx_2]) == '27':
+						counter_RWY_27 = counter_RWY_27 + 1
+		self.LOG_traffic_bunches_ARTIP.append(counter_IAF_ARTIP)
+		self.LOG_traffic_bunches_RIVER.append(counter_IAF_RIVER)
+		self.LOG_traffic_bunches_SUGOL.append(counter_IAF_SUGOL)
+		self.LOG_traffic_bunches_18C.append(counter_RWY_18C)
+		self.LOG_traffic_bunches_27.append(counter_RWY_27)
+		if counter_IAF_ARTIP>0 or counter_IAF_RIVER>0 or counter_IAF_SUGOL>0 or counter_RWY_18C>0 or counter_RWY_27>0:
+			print(self.LOG_traffic_bunches_ARTIP[-1])
+			print(self.LOG_traffic_bunches_RIVER[-1])
+			print(self.LOG_traffic_bunches_SUGOL[-1])
+			print(self.LOG_traffic_bunches_18C[-1])
+			print(self.LOG_traffic_bunches_27[-1])
+
+    def AMAN_LOG_ETA_CBAShistory(self,BS_CallSign,simtime):
+            for k in range(len(BS_CallSign)): # Callsign is array from BlueSky traffic, implies that aircraft is airborne
+                idx=self.AllFlights.CallSign.index(BS_CallSign[k]) # Find index of element for AMAN module
+           
+                if self.LOG_CBAS_passed[idx] is False:
+                        self.LOG_trafficbunchhist_esttime[idx].append(self.CurrEstTime_at_CBAS[idx]) # Logger: record scheduled time (at RWY) in framework of scheduled time history
+                        self.LOG_trafficbunchhist_disttorwy[idx].append(self.CurrDirectDist_to_APT[idx]) # Logger: record direct distance (to APT) in framework of scheduled time history
+                        self.LOG_trafficbunchhist_STAstatus[idx].append(self.STAstatus[idx]) # Logger: record status of STA in framework of scheduled time history
+                        self.LOG_trafficbunchhist_currdelay[idx].append(self.CurrDelToBeAbs[idx])
+                        self.LOG_trafficbunchhist_simtime[idx].append(simtime) # Logger: record corresponding simulation time

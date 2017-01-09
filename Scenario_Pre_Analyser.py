@@ -52,6 +52,7 @@ def save_to_file(sim):
         pickle.dump(sim.traf.AMAN.LOG_lowlevel_delabs_time,output,-1)
         pickle.dump(sim.traf.AMAN.LOG_lowlevel_delabs_dist,output,-1)
         pickle.dump(sim.traf.AMAN.LOG_lowlevel_delabs_type,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_lowlevel_delabs_IAF,output,-1)
         pickle.dump(sim.traf.AMAN.LOG_lowlevel_delabs_simtime,output,-1)
         
         pickle.dump(sim.traf.AMAN.LOG_seqhist_number,output,-1)
@@ -68,6 +69,12 @@ def save_to_file(sim):
         pickle.dump(sim.traf.AMAN.LOG_speed_changes_after_TOD_per_1_kts,output,-1)
         pickle.dump(sim.traf.AMAN.LOG_speed_changes_before_TOD_per_5_kts,output,-1)
         pickle.dump(sim.traf.AMAN.LOG_speed_changes_after_TOD_per_5_kts,output,-1)
+		
+        pickle.dump(sim.traf.AMAN.LOG_trafficbunchhist_esttime,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_trafficbunchhist_disttorwy,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_trafficbunchhist_STAstatus,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_trafficbunchhist_currdelay,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_trafficbunchhist_simtime,output,-1)
     
 #import matplotlib.pyplot as plt 
 #

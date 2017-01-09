@@ -373,6 +373,8 @@ class Traffic(DynamicArrays):
             self.AMAN.AMAN_LOG_lowleveldelay(self.id,simt)
             self.AMAN.AMAN_LOG_seqhistory(self.id)
             self.AMAN.AMAN_LOG_CBAShistory(self.id,simulation_start)
+            self.AMAN.AMAN_LOG_ETA_CBAShistory(self.id,simt)
+            #self.AMAN.AMAN_LOG_traffic_bunches(self.id,approach_margin)
         return
 
     def UpdateAirSpeed(self, simdt, simt):

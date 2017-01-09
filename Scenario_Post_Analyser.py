@@ -14,61 +14,67 @@ else:
 #fnametempor='scenariotest' 
     
 with open(fnametempor+'.pkl','rb') as input:
+    #IMPORTANT! SAME ORDER AS IN PRE-ANALYSER
+    SimulationParameters=pickle.load(input)    
     
-        #IMPORTANT! SAME ORDER AS IN PRE-ANALYSER
-        SimulationParameters=pickle.load(input)    
+    CallSigns=list(pickle.load(input))
+    PreDepEstTimes_at_RWY=list(pickle.load(input))
+    PopupLabels=list(pickle.load(input))
+    Direct_inbetween_dists=list(pickle.load(input))
+    SimTimes=list(pickle.load(input))
+    Origins=list(pickle.load(input))      
+	
+    IAFs=list(pickle.load(input))
+    RWYs=list(pickle.load(input))
+	
+    Total_flightplan_dists=list(pickle.load(input))
+    PreDepEstTimes_at_IAF=list(pickle.load(input))      
     
-        CallSigns=list(pickle.load(input))
-        PreDepEstTimes_at_RWY=list(pickle.load(input))
-        PopupLabels=list(pickle.load(input))
-        Direct_inbetween_dists=list(pickle.load(input))
-        SimTimes=list(pickle.load(input))
-        Origins=list(pickle.load(input))      
-        
-        IAFs=list(pickle.load(input))
-        RWYs=list(pickle.load(input))
-        
-        Total_flightplan_dists=list(pickle.load(input))
-        PreDepEstTimes_at_IAF=list(pickle.load(input))      
-        
-        LOG_times_at_IAF=list(pickle.load(input))
-        LOG_times_at_RWY=list(pickle.load(input))
-        LOG_accuracies_predepests_at_IAF=list(pickle.load(input))
-        LOG_accuracies_predepests_at_RWY=list(pickle.load(input))
-        LOG_IAFs_passed=list(pickle.load(input))
-        LOG_RWYs_passed=list(pickle.load(input))
-        LOG_delivery_accuracies_IAF=list(pickle.load(input))
-        
-        LOG_schtimehist_schtimes=list(pickle.load(input))
-        LOG_schtimehist_disttorwys=list(pickle.load(input))
-        LOG_schtimehist_flightphases=list(pickle.load(input))
-        LOG_schtimehist_STAstatuses=list(pickle.load(input))
-        LOG_schtimehist_simtimes=list(pickle.load(input)) #not yet
-        
-        LOG_energycosts=list(pickle.load(input))
-        
-        LOG_lowlevel_delabs_times=list(pickle.load(input))
-        LOG_lowlevel_delabs_dists=list(pickle.load(input))
-        LOG_lowlevel_delabs_types=list(pickle.load(input))
-        LOG_lowlevel_delabs_simtimes=list(pickle.load(input)) #not yet        
-                
-        LOG_seqhist_numbers=list(pickle.load(input))
-        LOG_seqhist_disttorwys=list(pickle.load(input))
-        LOG_seqhist_flightphases=list(pickle.load(input))
-        LOG_seqhist_STAstatuses=list(pickle.load(input))
-		
-        PreDepEstTimes_at_CBAS=list(pickle.load(input))
-        LOG_CBAS_passed=list(pickle.load(input))
-        LOG_times_at_CBAS=list(pickle.load(input))
-        LOG_accuracies_predepests_at_CBAS=list(pickle.load(input))
-		
-        LOG_speed_changes_before_TOD_per_1_kts=list(pickle.load(input))
-        LOG_speed_changes_after_TOD_per_1_kts=list(pickle.load(input))
-        LOG_speed_changes_before_TOD_per_5_kts=list(pickle.load(input))
-        LOG_speed_changes_after_TOD_per_5_kts=list(pickle.load(input))
-		
-        #
-      
+    LOG_times_at_IAF=list(pickle.load(input))
+    LOG_times_at_RWY=list(pickle.load(input))
+    LOG_accuracies_predepests_at_IAF=list(pickle.load(input))
+    LOG_accuracies_predepests_at_RWY=list(pickle.load(input))
+    LOG_IAFs_passed=list(pickle.load(input))
+    LOG_RWYs_passed=list(pickle.load(input))
+    LOG_delivery_accuracies_IAF=list(pickle.load(input))
+	
+    LOG_schtimehist_schtimes=list(pickle.load(input))
+    LOG_schtimehist_disttorwys=list(pickle.load(input))
+    LOG_schtimehist_flightphases=list(pickle.load(input))
+    LOG_schtimehist_STAstatuses=list(pickle.load(input))
+    LOG_schtimehist_simtimes=list(pickle.load(input)) #not yet
+    
+    LOG_energycosts=list(pickle.load(input))
+    
+    LOG_lowlevel_delabs_times=list(pickle.load(input))
+    LOG_lowlevel_delabs_dists=list(pickle.load(input))
+    LOG_lowlevel_delabs_types=list(pickle.load(input))
+    LOG_lowlevel_delabs_IAFs=list(pickle.load(input))
+    LOG_lowlevel_delabs_simtimes=list(pickle.load(input)) #not yet        
+
+    LOG_seqhist_numbers=list(pickle.load(input))
+    LOG_seqhist_disttorwys=list(pickle.load(input))
+    LOG_seqhist_flightphases=list(pickle.load(input))
+    LOG_seqhist_STAstatuses=list(pickle.load(input))
+	
+    PreDepEstTimes_at_CBAS=list(pickle.load(input))
+    LOG_CBAS_passed=list(pickle.load(input))
+    LOG_times_at_CBAS=list(pickle.load(input))
+    LOG_accuracies_predepests_at_CBAS=list(pickle.load(input))
+	
+    LOG_speed_changes_before_TOD_per_1_kts=list(pickle.load(input))
+    LOG_speed_changes_after_TOD_per_1_kts=list(pickle.load(input))
+    LOG_speed_changes_before_TOD_per_5_kts=list(pickle.load(input))
+    LOG_speed_changes_after_TOD_per_5_kts=list(pickle.load(input))
+	
+    LOG_trafficbunchhist_esttime=list(pickle.load(input))
+    LOG_trafficbunchhist_disttorwy=list(pickle.load(input))
+    LOG_trafficbunchhist_STAstatus=list(pickle.load(input))
+    LOG_trafficbunchhist_currdelay=list(pickle.load(input))
+    LOG_trafficbunchhist_simtime=list(pickle.load(input))
+#
+
+
 #First print some numbers
 print 
 print 
