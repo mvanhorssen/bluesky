@@ -70,11 +70,18 @@ def save_to_file(sim):
         pickle.dump(sim.traf.AMAN.LOG_speed_changes_before_TOD_per_5_kts,output,-1)
         pickle.dump(sim.traf.AMAN.LOG_speed_changes_after_TOD_per_5_kts,output,-1)
 		
-        pickle.dump(sim.traf.AMAN.LOG_trafficbunchhist_esttime,output,-1)
-        pickle.dump(sim.traf.AMAN.LOG_trafficbunchhist_disttorwy,output,-1)
-        pickle.dump(sim.traf.AMAN.LOG_trafficbunchhist_STAstatus,output,-1)
-        pickle.dump(sim.traf.AMAN.LOG_trafficbunchhist_currdelay,output,-1)
-        pickle.dump(sim.traf.AMAN.LOG_trafficbunchhist_simtime,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_traffic_bunches_simtime,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_traffic_bunches_ARTIP_total,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_traffic_bunches_ARTIP_var,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_traffic_bunches_ARTIP_sf,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_traffic_bunches_RIVER_total,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_traffic_bunches_RIVER_var,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_traffic_bunches_RIVER_sf,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_traffic_bunches_SUGOL_total,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_traffic_bunches_SUGOL_var,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_traffic_bunches_SUGOL_sf,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_traffic_bunches_18C,output,-1)
+        pickle.dump(sim.traf.AMAN.LOG_traffic_bunches_27,output,-1)
     
 #import matplotlib.pyplot as plt 
 #

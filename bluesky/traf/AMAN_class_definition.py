@@ -139,17 +139,24 @@ class AMAN(Flights):
         self.LOG_speed_changes_per_1_kts=[] # Logger: log amount of speed changes per 1 knot
         self.LOG_speed_changes_per_5_kts=[] # Logger: log amount of speed changes per 5 knots
 		
-        self.LOG_traffic_bunches_ARTIP=[] # Logger: log amount of bunches flying to IAF ARTIP
-        self.LOG_traffic_bunches_RIVER=[] # Logger: log amount of bunches flying to IAF RIVER
-        self.LOG_traffic_bunches_SUGOL=[] # Logger: log amount of bunches flying to IAF SUGOL
+        self.LOG_traffic_bunches_simtime=[] # Logger: log simtime with bunches
+        self.LOG_traffic_bunches_ARTIP_total=[] # Logger: log total amount of bunches flying to IAF ARTIP
+        self.LOG_traffic_bunches_ARTIP_var=[] # Logger: log amount of bunches flying to IAF ARTIP with status variable
+        self.LOG_traffic_bunches_ARTIP_sf=[] # Logger: log amount of bunches flying to IAF ARTIP with status semi-fixed
+        self.LOG_traffic_bunches_RIVER_total=[] # Logger: log total amount of bunches flying to IAF RIVER
+        self.LOG_traffic_bunches_RIVER_var=[] # Logger: log amount of bunches flying to IAF RIVER with status variable
+        self.LOG_traffic_bunches_RIVER_sf=[] # Logger: log amount of bunches flying to IAF RIVER with status semi-fixed
+        self.LOG_traffic_bunches_SUGOL_total=[] # Logger: log total amount of bunches flying to IAF SUGOL
+        self.LOG_traffic_bunches_SUGOL_var=[] # Logger: log amount of bunches flying to IAF SUGOL with status variable
+        self.LOG_traffic_bunches_SUGOL_sf=[] # Logger: log amount of bunches flying to IAF SUGOL with status semi-fixed
         self.LOG_traffic_bunches_18C=[] # Logger: log amount of bunches flying to RWY 18C
         self.LOG_traffic_bunches_27=[] # Logger: log amount of bunches flying to RWY 27
 		
-        self.LOG_trafficbunchhist_esttime=[]
-        self.LOG_trafficbunchhist_disttorwy=[]
-        self.LOG_trafficbunchhist_STAstatus=[]
-        self.LOG_trafficbunchhist_currdelay=[]
-        self.LOG_trafficbunchhist_simtime=[]
+        #self.LOG_trafficbunchhist_esttime=[]
+        #self.LOG_trafficbunchhist_disttorwy=[]
+        #self.LOG_trafficbunchhist_STAstatus=[]
+        #self.LOG_trafficbunchhist_currdelay=[]
+        #self.LOG_trafficbunchhist_simtime=[]
         
         self.initialize_values(unique_runways) # Initialise all parameters
      
@@ -286,11 +293,11 @@ class AMAN(Flights):
             self.LOG_speed_changes_per_1_kts = np.append(self.LOG_speed_changes_per_1_kts,0.) # Logger: log amount of speed changes per 1 kts
             self.LOG_speed_changes_per_5_kts = np.append(self.LOG_speed_changes_per_5_kts,0.) # Logger: log amount of speed changes per 5 kts
 			
-            self.LOG_trafficbunchhist_esttime.append([])
-            self.LOG_trafficbunchhist_disttorwy.append([])
-            self.LOG_trafficbunchhist_STAstatus.append([])
-            self.LOG_trafficbunchhist_currdelay.append([])
-            self.LOG_trafficbunchhist_simtime.append([])
+            #self.LOG_trafficbunchhist_esttime.append([])
+            #self.LOG_trafficbunchhist_disttorwy.append([])
+            #self.LOG_trafficbunchhist_STAstatus.append([])
+            #self.LOG_trafficbunchhist_currdelay.append([])
+            #self.LOG_trafficbunchhist_simtime.append([])
         
 			# Count amount of popups
             if self.AllFlights.PopupLabel[j]=='POPUP':
@@ -1993,47 +2000,68 @@ class AMAN(Flights):
 			if self.LOG_time_CBAS_passed[idx] > -999. and self.LOG_CBAS_passed[idx] == True:
 				self.LOG_accuracy_predepest_at_CBAS[idx] = self.LOG_time_CBAS_passed[idx] - (self.AllFlights.PreDepEstTime_at_CBAS[idx]-simulation_start)
 				
-    def AMAN_LOG_traffic_bunches(self,BS_CallSign,approach_margin):
-		counter_IAF_ARTIP = 0
-		counter_IAF_RIVER = 0
-		counter_IAF_SUGOL = 0
+    def AMAN_LOG_traffic_bunches(self,BS_CallSign,approach_margin,simtime):
+		counter_IAF_ARTIP_total = 0
+		counter_IAF_ARTIP_var = 0
+		counter_IAF_ARTIP_sf = 0
+		counter_IAF_RIVER_total = 0
+		counter_IAF_RIVER_var = 0
+		counter_IAF_RIVER_sf = 0
+		counter_IAF_SUGOL_total = 0
+		counter_IAF_SUGOL_var = 0
+		counter_IAF_SUGOL_sf = 0
 		counter_RWY_18C = 0
 		counter_RWY_27 = 0
 		for k in range(len(BS_CallSign)):
 			idx = self.AllFlights.CallSign.index(BS_CallSign[k])
 			for i in range(len(BS_CallSign)):
 				idx_2 = self.AllFlights.CallSign.index(BS_CallSign[i])
-				if (idx_2 != idx) and ((self.CurrEstTime_at_CBAS[idx_2]-self.CurrEstTime_at_CBAS[idx])<approach_margin) and ((self.CurrEstTime_at_CBAS[idx_2]-self.CurrEstTime_at_CBAS[idx])>0.) and (self.whichIAFs[idx_2] == self.whichIAFs[idx]) and self.LOG_CBAS_passed[idx_2] == False: # and ((self.CurrDelToBeAbs[idx_2]-self.MaxPossSpdDelAbs_to_IAF[idx_2])>approach_margin) 
+				if (idx_2 != idx) and ((self.CurrEstTime_at_CBAS[idx_2]-self.CurrEstTime_at_CBAS[idx])<approach_margin) and ((self.CurrEstTime_at_CBAS[idx_2]-self.CurrEstTime_at_CBAS[idx])>0.) \
+				and (self.whichIAFs[idx_2] == self.whichIAFs[idx]) and self.LOG_CBAS_passed[idx_2] == False and self.STAstatus[idx_2] != 'OFF': # and ((self.CurrDelToBeAbs[idx_2]-self.MaxPossSpdDelAbs_to_IAF[idx_2])>approach_margin) 
 					if str(self.whichIAFs[idx_2]) == 'ARTIP':
-						counter_IAF_ARTIP = counter_IAF_ARTIP + 1
+						counter_IAF_ARTIP_total = counter_IAF_ARTIP_total + 1
+						if str(self.STAstatus[idx_2]) == 'Variable':
+							counter_IAF_ARTIP_var = counter_IAF_ARTIP_var + 1
+						elif str(self.STAstatus[idx_2]) == 'Semi-Fixed':
+							counter_IAF_ARTIP_sf = counter_IAF_ARTIP_sf + 1
 					if str(self.whichIAFs[idx_2]) == 'RIVER':
-						counter_IAF_RIVER = counter_IAF_RIVER + 1
+						counter_IAF_RIVER_total = counter_IAF_RIVER_total + 1
+						if str(self.STAstatus[idx_2]) == 'Variable':
+							counter_IAF_RIVER_var = counter_IAF_RIVER_var + 1
+						elif str(self.STAstatus[idx_2]) == 'Semi-Fixed':
+							counter_IAF_RIVER_sf = counter_IAF_RIVER_sf + 1
 					if str(self.whichIAFs[idx_2]) == 'SUGOL':
-						counter_IAF_SUGOL = counter_IAF_SUGOL + 1
-				if (idx_2 != idx) and ((self.CurrEstTime_at_CBAS[idx_2]-self.CurrEstTime_at_CBAS[idx])<approach_margin) and ((self.CurrEstTime_at_CBAS[idx_2]-self.CurrEstTime_at_CBAS[idx])>0.) and self.LOG_CBAS_passed[idx_2] == False: # and ((self.CurrDelToBeAbs[idx_2]-self.MaxPossSpdDelAbs_to_IAF[idx_2])>approach_margin) 
+						counter_IAF_SUGOL_total = counter_IAF_SUGOL_total + 1
+						if str(self.STAstatus[idx_2]) == 'Variable':
+							counter_IAF_SUGOL_var = counter_IAF_SUGOL_var + 1
+						elif str(self.STAstatus[idx_2]) == 'Semi-Fixed':
+							counter_IAF_SUGOL_sf = counter_IAF_SUGOL_sf + 1
+				if (idx_2 != idx) and ((self.CurrEstTime_at_CBAS[idx_2]-self.CurrEstTime_at_CBAS[idx])<approach_margin) and ((self.CurrEstTime_at_CBAS[idx_2]-self.CurrEstTime_at_CBAS[idx])>0.) \
+				and self.LOG_CBAS_passed[idx_2] == False and self.STAstatus[idx_2] != 'OFF': # and ((self.CurrDelToBeAbs[idx_2]-self.MaxPossSpdDelAbs_to_IAF[idx_2])>approach_margin) 
 					if str(self.whichRWYs[idx_2]) == '18C':
 						counter_RWY_18C = counter_RWY_18C + 1
 					if str(self.whichRWYs[idx_2]) == '27':
 						counter_RWY_27 = counter_RWY_27 + 1
-		self.LOG_traffic_bunches_ARTIP.append(counter_IAF_ARTIP)
-		self.LOG_traffic_bunches_RIVER.append(counter_IAF_RIVER)
-		self.LOG_traffic_bunches_SUGOL.append(counter_IAF_SUGOL)
+		self.LOG_traffic_bunches_simtime.append(simtime)
+		self.LOG_traffic_bunches_ARTIP_total.append(counter_IAF_ARTIP_total)
+		self.LOG_traffic_bunches_ARTIP_var.append(counter_IAF_ARTIP_var)
+		self.LOG_traffic_bunches_ARTIP_sf.append(counter_IAF_ARTIP_sf)
+		self.LOG_traffic_bunches_RIVER_total.append(counter_IAF_RIVER_total)
+		self.LOG_traffic_bunches_RIVER_var.append(counter_IAF_RIVER_var)
+		self.LOG_traffic_bunches_RIVER_sf.append(counter_IAF_RIVER_sf)
+		self.LOG_traffic_bunches_SUGOL_total.append(counter_IAF_SUGOL_total)
+		self.LOG_traffic_bunches_SUGOL_var.append(counter_IAF_SUGOL_var)
+		self.LOG_traffic_bunches_SUGOL_sf.append(counter_IAF_SUGOL_sf)
 		self.LOG_traffic_bunches_18C.append(counter_RWY_18C)
 		self.LOG_traffic_bunches_27.append(counter_RWY_27)
-		if counter_IAF_ARTIP>0 or counter_IAF_RIVER>0 or counter_IAF_SUGOL>0 or counter_RWY_18C>0 or counter_RWY_27>0:
-			print(self.LOG_traffic_bunches_ARTIP[-1])
-			print(self.LOG_traffic_bunches_RIVER[-1])
-			print(self.LOG_traffic_bunches_SUGOL[-1])
-			print(self.LOG_traffic_bunches_18C[-1])
-			print(self.LOG_traffic_bunches_27[-1])
 
     def AMAN_LOG_ETA_CBAShistory(self,BS_CallSign,simtime):
             for k in range(len(BS_CallSign)): # Callsign is array from BlueSky traffic, implies that aircraft is airborne
                 idx=self.AllFlights.CallSign.index(BS_CallSign[k]) # Find index of element for AMAN module
            
-                if self.LOG_CBAS_passed[idx] is False:
-                        self.LOG_trafficbunchhist_esttime[idx].append(self.CurrEstTime_at_CBAS[idx]) # Logger: record scheduled time (at RWY) in framework of scheduled time history
-                        self.LOG_trafficbunchhist_disttorwy[idx].append(self.CurrDirectDist_to_APT[idx]) # Logger: record direct distance (to APT) in framework of scheduled time history
-                        self.LOG_trafficbunchhist_STAstatus[idx].append(self.STAstatus[idx]) # Logger: record status of STA in framework of scheduled time history
-                        self.LOG_trafficbunchhist_currdelay[idx].append(self.CurrDelToBeAbs[idx])
-                        self.LOG_trafficbunchhist_simtime[idx].append(simtime) # Logger: record corresponding simulation time
+                if self.LOG_CBAS_passed[idx] == False:
+                    self.LOG_trafficbunchhist_esttime[idx].append(self.CurrEstTime_at_CBAS[idx]) # Logger: record scheduled time (at RWY) in framework of scheduled time history
+                    self.LOG_trafficbunchhist_disttorwy[idx].append(self.CurrDirectDist_to_APT[idx]) # Logger: record direct distance (to APT) in framework of scheduled time history
+                    self.LOG_trafficbunchhist_STAstatus[idx].append(self.STAstatus[idx]) # Logger: record status of STA in framework of scheduled time history
+                    self.LOG_trafficbunchhist_currdelay[idx].append(self.CurrDelToBeAbs[idx])
+                    self.LOG_trafficbunchhist_simtime[idx].append(simtime) # Logger: record corresponding simulation time
