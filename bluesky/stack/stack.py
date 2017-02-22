@@ -231,7 +231,19 @@ def init(sim, traf, scr):
             lambda idx: traf.ap.route[idx].delrte(),
             "Delete for this a/c the complete route/dest/orig (FMS)"
          ],
-         "DELWPT": [
+         "DELTASPD": [
+            "DELTASPD acid,deltaspdinkts",
+            "acid,float",
+            traf.setdeltaspeed,
+            "Set delta speed in kts"
+        ],
+        "DELTASPDDEV": [
+            "DELTASPDDEV acid,deltaspddevinkts",
+            "acid,float",
+            traf.setdeltaspeeddev,
+            "Set delta speed deviation in kts"
+        ],
+		 "DELWPT": [
             "DELWPT acid,wpname",
             "acid,wpinroute",
             lambda idx, wpname: traf.ap.route[idx].delwpt(wpname),

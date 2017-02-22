@@ -44,6 +44,40 @@ def scenario_creator(FlightID): #AllFlights.SimTime[idx]-simulation_start
     outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>VNAV '+str(AllFlights.CallSign[idx])+ ', ON')   
     # Example: 00:00:00.00>VNAV,TN748,ON
     
+def scenario_creator_with_offset(FlightID,spd_offset,spd_offset_dev): #AllFlights.SimTime[idx]-simulation_start
+    idx=AllFlights.FlightIdentifier.index(FlightID)
+    outputfile.write('\n \n \n \n')
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>CRE '+str(AllFlights.CallSign[idx])+ ', '+'B744'+','+str(AllFlights.Route_outside_TMA[idx].LAT[0])+','+str(AllFlights.Route_outside_TMA[idx].LON[0]) + ',' + str(AllFlights.StartHeading[idx]) + ',0,' + str(AllFlights.Route_outside_TMA[idx].spd[0]) + '\n \n')  # B744 should be replaced with real aircraft type 
+    # Example: 00:00:00.00>CRE TN748,B747, 51.934621,5.599594,45,0,200
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ORIG '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.Origin[idx]) + '\n \n')   
+    # Example: 00:00:00.00>ORIG,TN748,LFRS
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>DEST '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.Destination[idx]) + '\n \n')   
+    # Example: 00:00:00.00>DEST,TN748,EHAM
+        
+    for k in range(len(AllFlights.Route_outside_TMA[idx].waypoints)):
+        outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ADDWPT '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.Route_outside_TMA[idx].LAT[k])+','+ str(AllFlights.Route_outside_TMA[idx].LON[k]) +','+ str(float(AllFlights.Route_outside_TMA[idx].FL[k])*100.) + ',' + str(AllFlights.Route_outside_TMA[idx].spd[k]) + '\n \n')       
+                
+        if k==0:
+            outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>DIRECT '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.CallSign[idx])+'000' '\n \n')   
+            # Example: 01:00:00.00>DIRECT,TN748,TN748000,0,220
+    
+    for k in range(len(AllFlights.Route_TMA[idx].waypoints)):
+        outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ADDWPT '+str(AllFlights.CallSign[idx])+ ', '+ str(AllFlights.Route_TMA[idx].LAT[k])+','+ str(AllFlights.Route_TMA[idx].LON[k]) +','+ str(float(AllFlights.Route_TMA[idx].FL[k])*100.) + ',' + str(AllFlights.Route_TMA[idx].spd[k]) + '\n \n')       
+        
+    # Add extra waypoints
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ADDWPT ' +str(AllFlights.CallSign[idx]) + ', ' + str(AllFlights.Route_TMA[idx].extrawpts_LAT[1]) + ', ' + str(AllFlights.Route_TMA[idx].extrawpts_LON[1]) + ',' +  str(0.) + ',' + str(AllFlights.Route_TMA[idx].spd[-1]) + '\n \n')
+    #outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>ADDWPT ' +str(AllFlights.CallSign[idx]) + ', ' + str(AllFlights.Route_TMA[idx].extrawpts_LAT[0]) + ', ' + str(AllFlights.Route_TMA[idx].extrawpts_LON[0]) + ',' +  str(0.) + ',' + str(AllFlights.Route_TMA[idx].spd[-1]) + '\n \n')
+    
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>LNAV '+str(AllFlights.CallSign[idx])+ ', ON' '\n \n')   
+    # Example: 00:00:00.00>LNAV,TN748,ON
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>VNAV '+str(AllFlights.CallSign[idx])+ ', ON' '\n \n')   
+    # Example: 00:00:00.00>VNAV,TN748,ON
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>DELTASPD '+str(AllFlights.CallSign[idx])+ ', '+str(spd_offset)+'\n \n')   
+    # Example: 00:00:00.00>DELTASPD,TN748,0
+    outputfile.write('00:00:'+str(AllFlights.SimTime[idx]-simulation_start)+'>DELTASPDDEV '+str(AllFlights.CallSign[idx])+ ', '+str(spd_offset_dev))   
+    # Example: 00:00:00.00>DELTASPDDEV,TN748,0
+
+
 #####################################################################################  
 
 popup_window = False
@@ -210,42 +244,6 @@ if '--node' in sys.argv:
     elif var_dataset==str('Dataset12'):
         filename='20150914_1600_1900UTC.so6'        
         
-    elif var_dataset==str('Dataset21'):
-        filename='20150707Regulated1013UTC.so6'       
-
-    elif var_dataset==str('Dataset22'):
-        filename='20150707Regulated1316UTC.so6'
-
-    elif var_dataset==str('Dataset23'):
-        filename='20150716Regulated1013UTC.so6'        
-
-    elif var_dataset==str('Dataset24'):
-        filename='20150716Regulated1316UTC.so6'    
-
-    elif var_dataset==str('Dataset25'):
-        filename='20150807Regulated1013UTC.so6'
-
-    elif var_dataset==str('Dataset26'):
-        filename='20150807Regulated1316UTC.so6'        
-
-    elif var_dataset==str('Dataset27'):
-        filename='20150812Regulated1013UTC.so6'
-
-    elif var_dataset==str('Dataset28'):
-        filename='20150812Regulated1316UTC.so6'
-
-    elif var_dataset==str('Dataset29'):
-        filename='20150901Regulated1013UTC.so6'
-
-    elif var_dataset==str('Dataset30'):
-        filename='20150901Regulated1316UTC.so6'
-
-    elif var_dataset==str('Dataset31'):
-        filename='20150914Regulated1013UTC.so6'
-
-    elif var_dataset==str('Dataset32'):
-        filename='20150914Regulated1316UTC.so6'
-           
 else:
     filename='20150707_0400_0700UTC.so6' # Traffic .so6 file to be simulated
 
@@ -265,6 +263,8 @@ if '--node' in sys.argv:
         SARA_horizon=100. # [nm]; Active Advisory Horizon
         Take_into_account_schedule_horizon=250. # [nm]; From this horizon, aircraft are used for scheduling
         Freeze_horizon=120. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon       
+        spd_offset = 0.
+        spd_offset_dev = 0.
     elif var_AMAN=='EAMAN':   
         print
         print 'E-AMAN'
@@ -281,6 +281,8 @@ if '--node' in sys.argv:
         SARA_horizon=230. # [nm]; Active Advisory Horizon
         Take_into_account_schedule_horizon=300. # [nm]; From this horizon, aircraft are used for scheduling
         Freeze_horizon=250. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon
+        spd_offset = -33.
+        spd_offset_dev = 27.
     elif str(var_AMAN)=='XMAN350':   
         print
         print 'XMAN 350'
@@ -289,6 +291,8 @@ if '--node' in sys.argv:
         SARA_horizon=330. # [nm]; Active Advisory Horizon
         Take_into_account_schedule_horizon=400. # [nm]; From this horizon, aircraft are used for scheduling
         Freeze_horizon=350. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon
+        spd_offset = -28.
+        spd_offset_dev = 22.
     elif str(var_AMAN)=='XMAN450':   
         print
         print 'XMAN 450'
@@ -297,11 +301,15 @@ if '--node' in sys.argv:
         SARA_horizon=430. # [nm]; Active Advisory Horizon
         Take_into_account_schedule_horizon=500. # [nm]; From this horizon, aircraft are used for scheduling
         Freeze_horizon=450. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon
+        spd_offset = -26.
+        spd_offset_dev = 18.
 else:    
     AMAN_horizon=120. # [nm]; Planning Horizon
     SARA_horizon=100. # [nm]; Active Advisory Horizon
     Take_into_account_schedule_horizon=250. # [nm]; From this horizon, aircraft are used for scheduling
     Freeze_horizon=120. # [nm]; Should be same as AMAN_horizon. Freeze Horizon (STA is semi-fixed now). Sufficient time necessary to process flights just outside Freeze_horizon: set (at least) 20 nm smaller than AMAN_horizon
+    spd_offset = 0.
+    spd_offset_dev = 0.
 
 #####
 # Scenario editing
@@ -702,11 +710,15 @@ outputfile.write('00:00:0>FF')
 outputfile.write('\n')
 outputfile.write('\n')
 outputfile.write('00:00:0>ASAS OFF')
+outputfile.write('\n')
+outputfile.write('\n')
+outputfile.write('00:00:0>SEED 1')
 	
 for time in time_var:
     for k in range(len(AllFlights.SimTime)):
         if time==AllFlights.SimTime[k]:
-            scenario_creator(AllFlights.FlightIdentifier[k])
+            #scenario_creator(AllFlights.FlightIdentifier[k])
+            scenario_creator_with_offset(AllFlights.FlightIdentifier[k],spd_offset,spd_offset_dev) # Scenario file with deltaspd offset
 outputfile.close()
 
 # Information file on all flights and parameters
@@ -803,7 +815,7 @@ if len(sys.argv)<2:
 	var_txt.write(str(var_name)+'\n') 			# Name
 	var_txt.write('Dataset1'+'\n') 				# Dataset
 	var_txt.write(str(popup_scaling*100)+'\n') 	# popup_scaling
-	var_txt.write('AMAN'+'\n') 					# AMAN
+	var_txt.write('XMAN250'+'\n') 				# AMAN
 	var_txt.write('ASAPBASIC'+'\n') 			# Trajectory Predictor
 	var_txt.write('0'+'\n') 					# Pre-departure delay
 	var_txt.write(str(approach_margin)+'\n') 	# Approach margin

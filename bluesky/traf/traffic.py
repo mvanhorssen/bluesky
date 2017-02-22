@@ -100,6 +100,11 @@ class Traffic(DynamicArrays):
                 self.ama    = np.array([])  # selected spd above crossover altitude (Mach) [-]
                 self.apalt  = np.array([])  # selected alt[m]
                 self.avs    = np.array([])  # selected vertical speed [m/s]
+				
+				# Speed offset
+                self.spdoffset = np.array([]) # speed offset [kts]
+                self.spdoffsetdev = np.array([]) # speed offset deviation [kts]
+                self.spd_onoff = np.array([]) # speed offset on/off
 
             # Whether to perform LNAV and VNAV
             self.swlnav   = np.array([], dtype=np.bool)
@@ -231,6 +236,9 @@ class Traffic(DynamicArrays):
         self.gs[-1]      = self.tas[-1]
         self.gsnorth[-1] = self.tas[-1] * cos(radians(self.hdg[-1]))
         self.gseast[-1]  = self.tas[-1] * sin(radians(self.hdg[-1]))
+		
+		# Speed offset
+        self.spd_onoff[-1] = 0. # Speed offset = 0 (off) on default
 
         # Atmosphere
         self.Temp[-1], self.rho[-1], self.p[-1] = vatmos(acalt)
@@ -347,7 +355,10 @@ class Traffic(DynamicArrays):
          
 		# Update trajectory predictor, scheduler and SARA every five seconds
         if self.AMAN.IterationCounter%2==0:
-            # Update Trajectory Predictions
+            # Check for speed offset
+            self.AMAN.speed_offset_switch(self.id,AMAN_horizon,self.spd_onoff)
+			
+			# Update Trajectory Predictions
             self.AMAN.update_TP(self.id,self.lat,self.lon,self.tas/kts,self.actwp.lat,self.actwp.lon,simt)
             
 			# Update schedule per runway
@@ -403,17 +414,22 @@ class Traffic(DynamicArrays):
 
     def UpdateGroundSpeed(self, simdt):
         # Compute ground speed and track from heading, airspeed and wind
+        spd_random = self.spdoffset * kts + np.random.randn(self.ntraf) * self.spdoffsetdev * kts
+		#self.spd_onoff = array([0 0 0 0 0 0 1 0 0 0 etc.]) # Array whether speed offset + randomness is on/off per aircraft
+        tasx = self.tas + spd_random * self.spd_onoff
+        print(tasx)
+        #tasx = self.tas + self.spdoffset * kts # np.random.randn(self.ntraf) * self.spdoffsetdev * kts
         if self.wind.winddim == 0:  # no wind
-            self.gsnorth  = self.tas * np.cos(np.radians(self.hdg))
-            self.gseast   = self.tas * np.sin(np.radians(self.hdg))
+            self.gsnorth  = tasx * np.cos(np.radians(self.hdg))
+            self.gseast   = tasx * np.sin(np.radians(self.hdg))
 
             self.gs  = self.tas
             self.trk = self.hdg
 
         else:
             windnorth, windeast = self.wind.getdata(self.lat, self.lon, self.alt)
-            self.gsnorth  = self.tas * np.cos(np.radians(self.hdg)) + windnorth
-            self.gseast   = self.tas * np.sin(np.radians(self.hdg)) + windeast
+            self.gsnorth  = tasx * np.cos(np.radians(self.hdg)) + windnorth
+            self.gseast   = tasx * np.sin(np.radians(self.hdg)) + windeast
 
             self.gs  = np.sqrt(self.gsnorth**2 + self.gseast**2)
             self.trk = np.degrees(np.arctan2(self.gseast, self.gsnorth)) % 360.
@@ -468,6 +484,12 @@ class Traffic(DynamicArrays):
     def nom(self, idx):
         """ Reset acceleration back to nominal (1 kt/s^2): NOM acid """
         self.ax[idx] = kts
+		
+    def setdeltaspeed(self, idx, offset=0.):
+		self.spdoffset[idx] = offset
+	
+    def setdeltaspeeddev(self, idx, offset=0.):
+		self.spdoffsetdev[idx] = offset
 
     def poscommand(self, scr, idxorwp):# Show info on aircraft(int) or waypoint or airport (str)
         """POS command: Show info or an aircraft, airport, waypoint or navaid"""
@@ -607,3 +629,5 @@ class Traffic(DynamicArrays):
             scr.echo(lines)
             
         return True
+		
+	

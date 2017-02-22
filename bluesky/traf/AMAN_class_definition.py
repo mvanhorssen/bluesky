@@ -2065,3 +2065,13 @@ class AMAN(Flights):
                     self.LOG_trafficbunchhist_STAstatus[idx].append(self.STAstatus[idx]) # Logger: record status of STA in framework of scheduled time history
                     self.LOG_trafficbunchhist_currdelay[idx].append(self.CurrDelToBeAbs[idx])
                     self.LOG_trafficbunchhist_simtime[idx].append(simtime) # Logger: record corresponding simulation time
+
+    def speed_offset_switch(self,BS_CallSign,AMAN_horizon,spd_switch): 
+        for k in range(len(BS_CallSign)):
+            idx=self.AllFlights.CallSign.index(BS_CallSign[k]) # Find index of element for AMAN module
+            if self.CurrDirectDist_to_APT[idx] < AMAN_horizon and self.CurrDirectDist_to_APT[idx] > 120.: # Start offset + randomness if aircraft is within AMAN_horizon and outside 120 NM
+				# Set 0 => 1 in spd_switch
+				spd_switch[k] = 1.
+            else:
+				# Set 1 => 0 in spd_switch
+				spd_switch[k] = 0.
