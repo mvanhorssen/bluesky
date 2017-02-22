@@ -417,7 +417,7 @@ class Traffic(DynamicArrays):
         spd_random = self.spdoffset * kts + np.random.randn(self.ntraf) * self.spdoffsetdev * kts
 		#self.spd_onoff = array([0 0 0 0 0 0 1 0 0 0 etc.]) # Array whether speed offset + randomness is on/off per aircraft
         tasx = self.tas + spd_random * self.spd_onoff
-        print(tasx)
+        #print(tasx)
         #tasx = self.tas + self.spdoffset * kts # np.random.randn(self.ntraf) * self.spdoffsetdev * kts
         if self.wind.winddim == 0:  # no wind
             self.gsnorth  = tasx * np.cos(np.radians(self.hdg))
